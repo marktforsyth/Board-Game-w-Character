@@ -1,3 +1,5 @@
+from random import randint
+
 board = {
   1: {
     1: "C",
@@ -14,7 +16,7 @@ board = {
   3: {
     1: " ",
     2: " ",
-    3: "T",
+    3: " ",
     4: " "
   },
   4: {
@@ -23,6 +25,11 @@ board = {
     3: " ",
     4: " "
   },
+}
+
+player_status = {
+  "coins": 0,
+  "health": 100,
 }
 
 def printBoard():
@@ -34,13 +41,16 @@ def printBoard():
       else:
         print(" " + str(board[i][d]) + " |", end="")
   print("\n"*2)
+  print("Coins: " + str(player_status["coins"]))
+  print("Health: " + str(player_status["health"]) + "\n\n")
 
 global x, y
 x = 1
 y = 1
 global chestX, chestY
-chestX = 3
-chestY = 3
+chestX = randint(0, len(board))
+chestY = randint(0, len(board))
+board[chestX][chestY] = "T"
 
 def check():
   global x, y
@@ -86,5 +96,9 @@ while True:
   check()
   
   if x == chestX and y == chestY:
+    printBoard()
     print("You've found the treasure! Congratulations!")
-    break
+    player_status["coins"] += 50
+    chestX = randint(0, len(board))
+    chestY = randint(0, len(board))
+    board[chestX][chestY] = "T"
