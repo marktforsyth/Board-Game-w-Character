@@ -1,0 +1,80 @@
+board = {
+  1: {
+    1: "C",
+    2: " ",
+    3: " ",
+    4: " "
+  },
+  2: {
+    1: " ",
+    2: " ",
+    3: " ",
+    4: " "
+  },
+  3: {
+    1: " ",
+    2: " ",
+    3: " ",
+    4: " "
+  },
+  4: {
+    1: " ",
+    2: " ",
+    3: " ",
+    4: " "
+  },
+}
+
+def printBoard():
+  for d in range(1, 5):
+    print("\n---|---|---|---")
+    for i in range(1, 5):
+      if i == 4:
+        print(" " + str(board[i][d]), end="")
+      else:
+        print(" " + str(board[i][d]) + " |", end="")
+  print("\n"*2)
+global x, y
+x = 1
+y = 1
+
+def check():
+  global x, y
+  cmd = input(">>> ")
+  
+  if cmd == "up":
+    if y <= 1:
+      print("\nYou cannot go up past here!")
+    else:
+      board[x][y] = " "
+      y -= 1
+      board[x][y] = "C"
+  elif cmd == "down":
+    if y >= 4:
+      print("\nYou cannot go down past here!")
+    else:
+      board[x][y] = " "
+      y += 1
+      board[x][y] = "C"
+  elif cmd == "right":
+    if x >= 4:
+      print("\nYou cannot go right past here!")
+    else:
+      board[x][y] = " "
+      x += 1
+      board[x][y] = "C"
+  elif cmd == "left":
+    if x <= 1:
+      print("\nYou cannot go left past here!")
+    else:
+      board[x][y] = " "
+      x -= 1
+      board[x][y] = "C"
+  else:
+    print("\nWe do not recognize your command")
+
+print("Your commands are 'up', 'down', 'left' and 'right'\n")
+
+while True:
+  printBoard()
+  check()
