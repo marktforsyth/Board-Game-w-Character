@@ -14,7 +14,7 @@ board = {
   3: {
     1: " ",
     2: " ",
-    3: " ",
+    3: "T",
     4: " "
   },
   4: {
@@ -34,9 +34,13 @@ def printBoard():
       else:
         print(" " + str(board[i][d]) + " |", end="")
   print("\n"*2)
+
 global x, y
 x = 1
 y = 1
+global chestX, chestY
+chestX = 3
+chestY = 3
 
 def check():
   global x, y
@@ -76,5 +80,11 @@ def check():
 print("Your commands are 'up', 'down', 'left' and 'right'\n")
 
 while True:
+  global chestX, chestY
+  
   printBoard()
   check()
+  
+  if x == chestX and y == chestY:
+    print("You've found the treasure! Congratulations!")
+    break
