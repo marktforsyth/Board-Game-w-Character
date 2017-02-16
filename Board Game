@@ -33,10 +33,10 @@ player_status = {
 }
 
 def printBoard():
-  for d in range(1, 5):
+  for d in range(1, (len(board) + 1)):
     print("\n---|---|---|---")
-    for i in range(1, 5):
-      if i == 4:
+    for i in range(1, len(board) + 1):
+      if i == len(board):
         print(" " + str(board[i][d]), end="")
       else:
         print(" " + str(board[i][d]) + " |", end="")
@@ -47,10 +47,51 @@ def printBoard():
 global x, y
 x = 1
 y = 1
+
 global chestX, chestY
-chestX = randint(0, len(board))
-chestY = randint(0, len(board))
+chestX = randint(1, len(board))
+chestY = randint(1, len(board))
 board[chestX][chestY] = "T"
+
+global enemyX, enemyY
+enemyX = randint(1, len(board))
+enemyY = randint(1, len(board))
+board[enemyX][enemyY] = "E"
+
+def enemyMove():
+  global enemyX, enemyY
+  cmd = randint(1, 4)
+  
+  if cmd == 1:
+    if enemyY <= 1:
+      print("\nThe enemy's head slams into a wall")
+    else:
+      board[enemyX][enemyY] = " "
+      enemyY -= 1
+      board[enemyX][enemyY] = "E"
+  elif cmd == 2:
+    if enemyY >= len(board):
+      print("\nThe enemy's head slams into a wall")
+    else:
+      board[enemyX][enemyY] = " "
+      enemyY += 1
+      board[enemyX][enemyY] = "E"
+  elif cmd == 3:
+    if enemyX >= len(board):
+      print("\nThe enemy's head slams into a wall")
+    else:
+      board[enemyX][enemyY] = " "
+      enemyX += 1
+      board[enemyX][enemyY] = "E"
+  elif cmd == 4:
+    if enemyX <= 1:
+      print("\nThe enemy's head slams into a wall")
+    else:
+      board[enemyX][enemyY] = " "
+      enemyX -= 1
+      board[enemyX][enemyY] = "E"
+  else:
+    print("\nSomething has gone wrong!")
 
 def check():
   global x, y
@@ -64,14 +105,14 @@ def check():
       y -= 1
       board[x][y] = "C"
   elif cmd == "down":
-    if y >= 4:
+    if y >= len(board):
       print("\nYou cannot go down past here!")
     else:
       board[x][y] = " "
       y += 1
       board[x][y] = "C"
   elif cmd == "right":
-    if x >= 4:
+    if x >= len(board):
       print("\nYou cannot go right past here!")
     else:
       board[x][y] = " "
@@ -92,6 +133,7 @@ print("Your commands are 'up', 'down', 'left' and 'right'\n")
 while True:
   global chestX, chestY
   
+  enemyMove()
   printBoard()
   check()
   
@@ -99,6 +141,15 @@ while True:
     printBoard()
     print("You've found the treasure! Congratulations!")
     player_status["coins"] += 50
-    chestX = randint(0, len(board))
-    chestY = randint(0, len(board))
+    chestX = randint(1, len(board))
+    chestY = randint(1, len(board))
     board[chestX][chestY] = "T"
+  
+  if x == enemyX and y == enemyY:
+    printBoard()
+    player_status["health"] -= 10
+    print("Oh no! The enemy hit you!")
+    
+  if player_status["health"] <= 0:
+    print("You died. :(")
+    break
