@@ -6,10 +6,18 @@ player_status = {
   "health": 100,
 }
 
+def make_divider(size):
+  divider = []
+  for i in range(size):
+    divider.append('---')
+  return '|'.join(divider)
+
+divider = make_divider(len(board))
+
 def printBoard():
   for d in range(1, (len(board) + 1)):
     print()
-    print("---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---")
+    print(divider)
     for i in range(1, len(board) + 1):
       if i == len(board):
         print(" " + str(board[i][d]), end="")
@@ -33,6 +41,11 @@ enemyX = randint(1, len(board))
 enemyY = randint(1, len(board))
 board[enemyX][enemyY] = "E"
 
+global x, y
+x = randint(1, len(board))
+y = randint(1, len(board))
+board[x][y] = "C"
+
 def enemyMove():
   global enemyX, enemyY
   cmd = randint(1, 4)
@@ -54,10 +67,13 @@ def enemyMove():
     else:
       dy = -1
   
-  board[enemyX][enemyY] = " "
-  enemyX += dx
-  enemyY += dy
-  board[enemyX][enemyY] = "E"
+  if enemyX + dx == x and enemyY + dy == y:
+    player_status["health"] -= 10
+  else:
+    board[enemyX][enemyY] = " "
+    enemyX += dx
+    enemyY += dy
+    board[enemyX][enemyY] = "E"
 
 def check():
   global x, y
