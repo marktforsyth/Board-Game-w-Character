@@ -67,6 +67,12 @@ def enemyMove():
       board[enemyX][enemyY] = "E"
   else:
     print("\nSomething has gone wrong!")
+  
+  ########################################
+  # How to make enemy follow you
+  # Step 1: compare enemyX and y to your x and you
+  # Step 2: whichever has the biggest difference(the x or the y), move to cover that gap
+  # This is how the enemy will follow you
 
 def check():
   global x, y
