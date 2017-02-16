@@ -36,43 +36,28 @@ board[enemyX][enemyY] = "E"
 def enemyMove():
   global enemyX, enemyY
   cmd = randint(1, 4)
+
+  xVal = abs(enemyX - x)
+  yVal = abs(enemyY - y)
   
-  if cmd == 1:
-    if enemyY <= 1:
-      print("\nThe enemy's head slams into a wall")
+  dx = 0
+  dy = 0
+  
+  if xVal > yVal:
+    if x > enemyX:
+      dx = 1
     else:
-      board[enemyX][enemyY] = " "
-      enemyY -= 1
-      board[enemyX][enemyY] = "E"
-  elif cmd == 2:
-    if enemyY >= len(board):
-      print("\nThe enemy's head slams into a wall")
-    else:
-      board[enemyX][enemyY] = " "
-      enemyY += 1
-      board[enemyX][enemyY] = "E"
-  elif cmd == 3:
-    if enemyX >= len(board):
-      print("\nThe enemy's head slams into a wall")
-    else:
-      board[enemyX][enemyY] = " "
-      enemyX += 1
-      board[enemyX][enemyY] = "E"
-  elif cmd == 4:
-    if enemyX <= 1:
-      print("\nThe enemy's head slams into a wall")
-    else:
-      board[enemyX][enemyY] = " "
-      enemyX -= 1
-      board[enemyX][enemyY] = "E"
+      dx = -1
   else:
-    print("\nSomething has gone wrong!")
+    if y > enemyY:
+      dy = 1
+    else:
+      dy = -1
   
-  ########################################
-  # How to make enemy follow you
-  # Step 1: compare enemyX and y to your x and you
-  # Step 2: whichever has the biggest difference(the x or the y), move to cover that gap
-  # This is how the enemy will follow you
+  board[enemyX][enemyY] = " "
+  enemyX += dx
+  enemyY += dy
+  board[enemyX][enemyY] = "E"
 
 def check():
   global x, y
