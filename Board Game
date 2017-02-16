@@ -1,31 +1,5 @@
 from random import randint
-
-board = {
-  1: {
-    1: "C",
-    2: " ",
-    3: " ",
-    4: " "
-  },
-  2: {
-    1: " ",
-    2: " ",
-    3: " ",
-    4: " "
-  },
-  3: {
-    1: " ",
-    2: " ",
-    3: " ",
-    4: " "
-  },
-  4: {
-    1: " ",
-    2: " ",
-    3: " ",
-    4: " "
-  },
-}
+from Board import board
 
 player_status = {
   "coins": 0,
@@ -34,7 +8,8 @@ player_status = {
 
 def printBoard():
   for d in range(1, (len(board) + 1)):
-    print("\n---|---|---|---")
+    print()
+    print("---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---")
     for i in range(1, len(board) + 1):
       if i == len(board):
         print(" " + str(board[i][d]), end="")
