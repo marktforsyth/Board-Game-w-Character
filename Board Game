@@ -33,84 +33,46 @@ enemyX = randint(1, len(board))
 enemyY = randint(1, len(board))
 board[enemyX][enemyY] = "E"
 
-def enemyMove():
-  global enemyX, enemyY
-  cmd = randint(1, 4)
-  
-  if cmd == 1:
-    if enemyY <= 1:
-      print("\nThe enemy's head slams into a wall")
-    else:
-      board[enemyX][enemyY] = " "
-      enemyY -= 1
-      board[enemyX][enemyY] = "E"
-  elif cmd == 2:
-    if enemyY >= len(board):
-      print("\nThe enemy's head slams into a wall")
-    else:
-      board[enemyX][enemyY] = " "
-      enemyY += 1
-      board[enemyX][enemyY] = "E"
-  elif cmd == 3:
-    if enemyX >= len(board):
-      print("\nThe enemy's head slams into a wall")
-    else:
-      board[enemyX][enemyY] = " "
-      enemyX += 1
-      board[enemyX][enemyY] = "E"
-  elif cmd == 4:
-    if enemyX <= 1:
-      print("\nThe enemy's head slams into a wall")
-    else:
-      board[enemyX][enemyY] = " "
-      enemyX -= 1
-      board[enemyX][enemyY] = "E"
-  else:
-    print("\nSomething has gone wrong!")
-
-def check():
-  global x, y
-  cmd = input(">>> ")
-  
+def move(x, y, char, cmd, errorMsg, reqs):
   if cmd == "up":
-    if y <= 1:
-      print("\nYou cannot go up past here!")
+    if y <= reqs[0]:
+      print("\n", errorMsg)
     else:
       board[x][y] = " "
       y -= 1
-      board[x][y] = "C"
-  elif cmd == "down":
+      board[x][y] = char
+  elif cmd == reqs[1]:
     if y >= len(board):
-      print("\nYou cannot go down past here!")
+      print("\n", errorMsg)
     else:
       board[x][y] = " "
       y += 1
-      board[x][y] = "C"
-  elif cmd == "right":
+      board[x][y] = char
+  elif cmd == reqs[2]:
     if x >= len(board):
-      print("\nYou cannot go right past here!")
+      print("\n", errorMsg)
     else:
       board[x][y] = " "
       x += 1
-      board[x][y] = "C"
-  elif cmd == "left":
+      board[x][y] = char
+  elif cmd == reqs[3]:
     if x <= 1:
-      print("\nYou cannot go left past here!")
+      print("\n", errorMsg)
     else:
       board[x][y] = " "
       x -= 1
-      board[x][y] = "C"
+      board[x][y] = char
   else:
     print("\nWe do not recognize your command")
 
 print("Your commands are 'up', 'down', 'left' and 'right'\n")
 
 while True:
-  global chestX, chestY
+  global chestX, chestY, x, y, enemyX, enemyY
   
-  enemyMove()
+  move(enemyX, enemyY, "E", randint(1, 4), "The enemy's head slams into a wall", [1, 2, 3, 4])
   printBoard()
-  check()
+  move(x, y, "C", input(">>> "), "You cannot go past here!", ["up", "down", "right", "left"])
   
   if x == chestX and y == chestY:
     printBoard()
@@ -119,7 +81,7 @@ while True:
     chestX = randint(1, len(board))
     chestY = randint(1, len(board))
     board[chestX][chestY] = "T"
-  
+
   if x == enemyX and y == enemyY:
     printBoard()
     player_status["health"] -= 10
