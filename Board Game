@@ -4,6 +4,7 @@ from Board import board
 player_status = {
   "coins": 0,
   "health": 100,
+  "damage": 2,
 }
 
 def make_divider(size):
@@ -27,10 +28,6 @@ def printBoard():
   print("Coins: " + str(player_status["coins"]))
   print("Health: " + str(player_status["health"]) + "\n\n")
 
-global x, y
-x = 1
-y = 1
-
 global chestX, chestY
 chestX = randint(1, len(board))
 chestY = randint(1, len(board))
@@ -45,6 +42,18 @@ global x, y
 x = randint(1, len(board))
 y = randint(1, len(board))
 board[x][y] = "C"
+
+global enemyHealth
+enemyHealth = 5
+
+def attack():
+  global enemyHealth
+  
+  if enemyX + 1 == x or enemyX - 1 == x or enemyY + 1 == y or enemyY - 1 == y:
+    enemyHealth -= player_status["damage"]
+    print("The enemy is at " + str(enemyHealth) + " health.")
+  else:
+    print("There are no enemies to attack!")
 
 def enemyMove():
   global enemyX, enemyY
@@ -102,6 +111,8 @@ def check():
       print("\nYou cannot go left past here!")
     else:
       dx = -1
+  elif cmd == "attack":
+    attack()
   else:
     print("\nWe do not recognize your command")
   
@@ -117,7 +128,7 @@ def check():
     y += dy
     board[x][y] = "C"
 
-print("Your commands are 'up', 'down', 'left' and 'right'\n")
+print("Your commands are 'up', 'down', 'left', 'right' and 'attack'\n")
 
 while True:
   enemyMove()
@@ -140,3 +151,15 @@ while True:
   if player_status["health"] <= 0:
     print("You died. :(")
     break
+
+  if enemyHealth <= 0:
+    enemyGold = randint(1, 10)
+    print("You killed the enemy! You loot it and find " + str(enemyGold) + " gold.")
+    player_status["coins"] += enemyGold
+    
+    board[enemyX][enemyY] = " "
+    enemyX = randint(1, len(board))
+    enemyY = randint(1, len(board))
+    board[enemyX][enemyY] = "E"
+    
+    enemyHealth = 5
