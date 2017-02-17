@@ -79,36 +79,36 @@ def check():
   global x, y
   cmd = input(">>> ")
   
+  dx = 0
+  dy = 0
+    
   if cmd == "up":
     if y <= 1:
       print("\nYou cannot go up past here!")
     else:
-      board[x][y] = " "
-      y -= 1
-      board[x][y] = "C"
+      dy = -1
   elif cmd == "down":
     if y >= len(board):
       print("\nYou cannot go down past here!")
     else:
-      board[x][y] = " "
-      y += 1
-      board[x][y] = "C"
+      dy = 1
   elif cmd == "right":
     if x >= len(board):
       print("\nYou cannot go right past here!")
     else:
-      board[x][y] = " "
-      x += 1
-      board[x][y] = "C"
+      dx = 1
   elif cmd == "left":
     if x <= 1:
       print("\nYou cannot go left past here!")
     else:
-      board[x][y] = " "
-      x -= 1
-      board[x][y] = "C"
+      dx = -1
   else:
     print("\nWe do not recognize your command")
+  
+  board[x][y] = " "
+  x += dx
+  y += dy
+  board[x][y] = "C"
 
 print("Your commands are 'up', 'down', 'left' and 'right'\n")
 
