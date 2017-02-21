@@ -36,6 +36,8 @@ board[chestX][chestY] = "T"
 global enemyX, enemyY
 enemyX = randint(1, len(board))
 enemyY = randint(1, len(board))
+enemyX = 1
+enemyY = 1
 board[enemyX][enemyY] = "E"
 
 global x, y
@@ -63,7 +65,7 @@ def healthBoost():
   
   if has_health_potion == True:
     player_status["health"] += 15
-    
+    print("Your health has been raised by 15!")
     has_health_potion = False
   else:
     print("\nYou don't have a health potion!")
@@ -99,7 +101,7 @@ def enemyMove():
     board[enemyX][enemyY] = "E"
 
 def check():
-  global x, y
+  global x, y, enemyX, enemyY
   cmd = input(">>> ")
   
   dx = 0
@@ -142,10 +144,20 @@ def check():
   
   if x + dx == enemyX and y + dy == enemyY:
     print("Oh no! The enemy hit you!")
-    board[x][y] = " "
-    x += dx*2
-    y += dy*2
-    board[x][y] = "C"
+    if x + dx*2 <= 0 or y + dy*2 <= 0 or x + dx*2 >= len(board) or y + dy*2 >= len(board):
+      board[x][y] = " "
+      enemyX = x
+      enemyY = y
+      x += dx
+      y += dy
+      board[x][y] = "C"
+      
+      board[enemyX][enemyY] = "E"
+    else:
+      board[x][y] = " "
+      x += dx*2
+      y += dy*2
+      board[x][y] = "C"
   else:
     board[x][y] = " "
     x += dx
@@ -165,7 +177,7 @@ while True:
   if x == chestX and y == chestY:
     printBoard()
     
-    treasure_pick = randint(1, 4)
+    treasure_pick = randint(1, 3)
     print("You've found the treasure! Congratulations!")
     if treasure_pick == 1:
       print("You recieved 50 gold!")
