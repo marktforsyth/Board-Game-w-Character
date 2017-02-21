@@ -48,6 +48,11 @@ board[x][y] = "C"
 global enemyHealth
 enemyHealth = 5
 
+global barrierX, barrierY
+barrierX = randint(1, len(board))
+barrierY = randint(1, len(board))
+board[barrierX][barrierY] = "*"
+
 global has_health_potion
 has_health_potion = False
 
@@ -94,6 +99,8 @@ def enemyMove():
   if enemyX + dx == x and enemyY + dy == y:
     print("Oh no! Then enemy hit you!")
     player_status["health"] -= 10
+  elif enemyX + dx == barrierX and enemyY + dy == barrierY:
+    print("The enemies head slams into the barrier")
   else:
     board[enemyX][enemyY] = " "
     enemyX += dx
@@ -158,6 +165,8 @@ def check():
       x += dx*2
       y += dy*2
       board[x][y] = "C"
+  elif x + dx == barrierX and y + dy == barrierY:
+    print("Your head slams into the barrier")
   else:
     board[x][y] = " "
     x += dx
