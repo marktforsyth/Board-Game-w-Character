@@ -62,8 +62,8 @@ def healthBoost():
   global has_health_potion
   
   if has_health_potion == True:
-    player_status["health"] += 10
-    print(player_status["health"]
+    player_status["health"] += 15
+    
     has_health_potion = False
   else:
     print("\nYou don't have a health potion!")
@@ -90,6 +90,7 @@ def enemyMove():
       dy = -1
   
   if enemyX + dx == x and enemyY + dy == y:
+    print("Oh no! Then enemy hit you!")
     player_status["health"] -= 10
   else:
     board[enemyX][enemyY] = " "
@@ -130,6 +131,7 @@ def check():
     should_regen_health = False
   elif cmd == "health boost":
     healthBoost()
+    should_regen_health = False
   else:
     print("\nWe do not recognize your command")
     should_regen_health = False
@@ -163,7 +165,7 @@ while True:
   if x == chestX and y == chestY:
     printBoard()
     
-    treasure_pick = randint(1, 3)
+    treasure_pick = randint(1, 4)
     print("You've found the treasure! Congratulations!")
     if treasure_pick == 1:
       print("You recieved 50 gold!")
