@@ -1,6 +1,18 @@
 from random import randint
 from Board import board
 
+def find_empty_space():
+  while True:
+    x = randint(1, len(board))
+    y = randint(1, len(board))
+    
+    if board[x][y] == " ":
+      return x, y
+
+for i in range(0, 5):
+  x, y = find_empty_space()
+  board[x][y] = "*"
+
 player = {
   "x": randint(1, len(board)),
   "y": randint(1, len(board)),
@@ -40,14 +52,8 @@ def printBoard():
   print("Health: " + str(player["health"]) + "\n\n")
 
 global chestX, chestY
-chestX = randint(1, len(board))
-chestY = randint(1, len(board))
+chestX, chestY = find_empty_space()
 board[chestX][chestY] = "T"
-
-global barrierX, barrierY
-barrierX = randint(1, len(board))
-barrierY = randint(1, len(board))
-board[barrierX][barrierY] = "*"
 
 global has_health_potion
 has_health_potion = False
@@ -92,7 +98,7 @@ def enemyMove():
   if enemy["x"] + dx == player["x"] and enemy["y"] + dy == player["y"]:
     print("Oh no! Then enemy hit you!")
     player["health"] -= 10
-  elif enemy["x"] + dx == barrierX and enemy["y"] + dy == barrierY:
+  elif board[enemy["x"]+dx][enemy["y"]+dy] == "*":
     print("The enemies head slams into the barrier")
   else:
     board[enemy["x"]][enemy["y"]] = " "
@@ -157,7 +163,7 @@ def check():
       player["x"] += dx*2
       player["y"] += dy*2
       board[player["x"]][player["y"]] = "C"
-  elif player["x"] + dx == barrierX and player["y"] + dy == barrierY:
+  elif board[player["x"]+dx][player["y"]+dy] == "*":
     print("Your head slams into the barrier")
   else:
     board[player["x"]][player["y"]] = " "
@@ -175,7 +181,7 @@ while True:
   if player["health"] >= 100:
     player["health"] = 100
   
-  if player["x"] == chestX and player["x"] == chestY:
+  if player["x"] == chestX and player["y"] == chestY:
     printBoard()
     
     treasure_pick = randint(1, 3)
@@ -190,9 +196,9 @@ while True:
       print("You got a health potion!")
       has_health_potion = True
     
-    chestX = randint(1, len(board))
-    chestY = randint(1, len(board))
+    chestX, chestY = find_empty_space()
     board[chestX][chestY] = "T"
+  
   elif enemy["x"] == chestX and enemy["y"] == chestY:
     print("Oh no! The enemy got to the chest before you! Good luck on the next one!")
     chestX = randint(1, len(board))
