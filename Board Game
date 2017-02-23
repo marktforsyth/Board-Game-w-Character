@@ -24,17 +24,19 @@ player = {
 enemies = [{
   "x": randint(1, len(board)),
   "y": randint(1, len(board)),
-  "health": 5
+  "health": 5,
+  "char": "E"
 }, 
 {
   "x": randint(1, len(board)),
   "y": randint(1, len(board)),
-  "health": 8
+  "health": 8,
+  "char": "B"
 }]
 
 board[player["x"]][player["y"]] = "C"
 for enemy in enemies:
-  board[enemy["x"]][enemy["y"]] = "E"
+  board[enemy["x"]][enemy["y"]] = enemy["char"]
 
 def make_divider(size):
   divider = []
@@ -113,7 +115,7 @@ def enemyMove():
       board[enemy["x"]][enemy["y"]] = " "
       enemy["x"] += dx
       enemy["y"] += dy
-      board[enemy["x"]][enemy["y"]] = "E"
+      board[enemy["x"]][enemy["y"]] = enemy["char"]
 
 def check():
   cmd = input(">>> ")
@@ -157,8 +159,14 @@ def check():
     player["health"] += rand_healing
   
   for enemy in enemies:
-    if player["x"] + dx == enemy["x"] and player["y"] + dy == enemy["y"]:
+    '''if player["x"] + dx == enemy["x"] and player["y"] + dy == enemy["y"]:
       print("Oh no! The enemy hit you!")
+      
+      board[player["x"]][player["y"]] = " "
+      player["x"] += dx*2
+      player["y"] += dy*2
+      board[player["x"]][player["y"]] = "C"
+    
       if player["x"] + dx*2 <= 0 or player["y"] + dy*2 <= 0 or player["x"] + dx*2 >= len(board) or player["y"] + dy*2 >= len(board):
         board[player["x"]][player["y"]] = " "
         enemy["x"] = player["x"]
@@ -167,13 +175,10 @@ def check():
         player["y"] += dy
         board[player["x"]][player["y"]] = "C"
         
-        board[enemy["x"]][enemy["y"]] = "E"
-      else:
-        board[player["x"]][player["y"]] = " "
-        player["x"] += dx*2
-        player["y"] += dy*2
-        board[player["x"]][player["y"]] = "C"
-    elif board[player["x"]+dx][player["y"]+dy] == "*":
+        board[enemy["x"]][enemy["y"]] = enemy["char"]
+      else'''
+
+    if board[player["x"]+dx][player["y"]+dy] == "*":
       print("Your head slams into the barrier")
     else:
       board[player["x"]][player["y"]] = " "
@@ -223,8 +228,8 @@ while True:
       board[enemy["x"]][enemy["y"]] = " "
       enemy["x"] = randint(1, len(board))
       enemy["y"] = randint(1, len(board))
-      board[enemy["x"]][enemy["y"]] = "E"
-    
+      board[enemy["x"]][enemy["y"]] = enemy["char"]
+
       enemy["health"] = 5
     
   if player["health"] <= 0:
