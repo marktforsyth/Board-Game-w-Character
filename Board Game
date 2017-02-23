@@ -13,17 +13,20 @@ for i in range(0, 5):
   x, y = find_empty_space()
   board[x][y] = "*"
 
+theFirstX, theFirstY = find_empty_space()
+theFirstEX, theFirstEY = find_empty_space()
+
 player = {
-  "x": randint(1, len(board)),
-  "y": randint(1, len(board)),
+  "x": theFirstX,
+  "y": theFirstY,
   "coins": 0,
   "health": 100,
   "damage": 1,
 }
 
 enemies = [{
-  "x": randint(1, len(board)),
-  "y": randint(1, len(board)),
+  "x": theFirstEX,
+  "y": theFirstEY,
   "health": 5,
   "char": "E"
 }, 
