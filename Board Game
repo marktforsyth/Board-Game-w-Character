@@ -124,20 +124,29 @@ def enemyMove():
       player["health"] -= 10
     elif board[enemy["x"]+dx][enemy["y"]+dy] == "*":
       print("The enemies head slams into the barrier")
-    else:
-      if board[enemy["x"]+dx][enemy["y"]+dy] == "G" or board[enemy["x"]+dx][enemy["y"]+dy] == "S" or board[enemy["x"]+dx][enemy["y"]+dy] == "H":
-        print("Oh no! The enemy got to the chest before you! Good luck on the next one!")
-        
-        tresX, tresY = find_empty_space()
-        whichTres = randint(0, 2)
-        board[tresX][tresY] = treasures[whichTres]
-        
-        
+    elif board[enemy["x"]+dx][enemy["y"]+dy] == "G" or board[enemy["x"]+dx][enemy["y"]+dy] == "S" or board[enemy["x"]+dx][enemy["y"]+dy] == "H":
+      print("Oh no! The enemy got to the chest before you! Good luck on the next one!")
+      
+      tresX, tresY = find_empty_space()
+      whichTres = randint(0, 2)
+      board[tresX][tresY] = treasures[whichTres]
       
       board[enemy["x"]][enemy["y"]] = " "
       enemy["x"] += dx
       enemy["y"] += dy
       board[enemy["x"]][enemy["y"]] = enemy["char"]
+    elif board[enemy["x"]+dx][enemy["y"]+dy] != " ":
+      pass # the tile is occupied
+    else:
+      board[enemy["x"]][enemy["y"]] = " "
+      enemy["x"] += dx
+      enemy["y"] += dy
+      board[enemy["x"]][enemy["y"]] = enemy["char"]
+      
+def find_enemy_at(x, y):
+  for enemy in enemies:
+    if x == enemy["x"] and y == enemy["y"]:
+      return enemy
 
 def check():
   global has_health_potion
@@ -182,55 +191,54 @@ def check():
     rand_healing = randint(1, 5)
     player["health"] += rand_healing
   
-  for enemy in enemies:
-    '''if player["x"] + dx == enemy["x"] and player["y"] + dy == enemy["y"]:
-      print("Oh no! The enemy hit you!")
-      
-      board[player["x"]][player["y"]] = " "
-      player["x"] += dx*2
-      player["y"] += dy*2
-      board[player["x"]][player["y"]] = "C"
+ 
+  enemy = find_enemy_at(player["x"] + dx, player["y"] + dy)
+  if enemy:
+    print("Oh no! The enemy hit you!")
     
-      if player["x"] + dx*2 <= 0 or player["y"] + dy*2 <= 0 or player["x"] + dx*2 >= len(board) or player["y"] + dy*2 >= len(board):
-        board[player["x"]][player["y"]] = " "
-        enemy["x"] = player["x"]
-        enemy["y"] = player["y"]
-        player["x"] += dx
-        player["y"] += dy
-        board[player["x"]][player["y"]] = "C"
-        
-        board[enemy["x"]][enemy["y"]] = enemy["char"]
-      else'''
-
-    if board[player["x"]+dx][player["y"]+dy] == "*":
-      print("Your head slams into the barrier")
-    else:
-      if board[player["x"]+dx][player["y"]+dy] == "G":
-        print("You got 50 gold!")
-        player["coins"] += 50
-        
-        tresX, tresY = find_empty_space()
-        whichTres = randint(0, 2)
-        board[tresX][tresY] = treasures[whichTres]
-      elif board[player["x"]+dx][player["y"]+dy] == "S":
-        print("You got a better sword!")
-        player["damage"] += 2
-        
-        tresX, tresY = find_empty_space()
-        whichTres = randint(0, 2)
-        board[tresX][tresY] = treasures[whichTres]
-      elif board[player["x"]+dx][player["y"]+dy] == "H":
-        print("You got a health potion!")
-        has_health_potion = True
-        
-        tresX, tresY = find_empty_space()
-        whichTres = randint(0, 2)
-        board[tresX][tresY] = treasures[whichTres]
-
+    board[player["x"]][player["y"]] = " "
+    player["x"] += dx*2
+    player["y"] += dy*2
+    board[player["x"]][player["y"]] = "C"
+  
+    if player["x"] + dx*2 <= 0 or player["y"] + dy*2 <= 0 or player["x"] + dx*2 >= len(board) or player["y"] + dy*2 >= len(board):
       board[player["x"]][player["y"]] = " "
+      enemy["x"] = player["x"]
+      enemy["y"] = player["y"]
       player["x"] += dx
       player["y"] += dy
       board[player["x"]][player["y"]] = "C"
+      
+      board[enemy["x"]][enemy["y"]] = enemy["char"]
+  elif board[player["x"]+dx][player["y"]+dy] == "*":
+    print("Your head slams into the barrier")
+  else:
+    if board[player["x"]+dx][player["y"]+dy] == "G":
+      print("You got 50 gold!")
+      player["coins"] += 50
+      
+      tresX, tresY = find_empty_space()
+      whichTres = randint(0, 2)
+      board[tresX][tresY] = treasures[whichTres]
+    elif board[player["x"]+dx][player["y"]+dy] == "S":
+      print("You got a better sword!")
+      player["damage"] += 2
+      
+      tresX, tresY = find_empty_space()
+      whichTres = randint(0, 2)
+      board[tresX][tresY] = treasures[whichTres]
+    elif board[player["x"]+dx][player["y"]+dy] == "H":
+      print("You got a health potion!")
+      has_health_potion = True
+      
+      tresX, tresY = find_empty_space()
+      whichTres = randint(0, 2)
+      board[tresX][tresY] = treasures[whichTres]
+
+    board[player["x"]][player["y"]] = " "
+    player["x"] += dx
+    player["y"] += dy
+    board[player["x"]][player["y"]] = "C" # '''
 
 print("Your commands are 'up', 'down', 'left', 'right', 'attack' and 'health boost'\n")
 
