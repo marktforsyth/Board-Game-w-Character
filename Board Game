@@ -15,6 +15,7 @@ for i in range(0, 5):
 
 theFirstX, theFirstY = find_empty_space()
 theFirstEX, theFirstEY = find_empty_space()
+theSecondEX, theSecondEY = find_empty_space()
 
 player = {
   "x": theFirstX,
@@ -31,8 +32,8 @@ enemies = [{
   "char": "E"
 }, 
 {
-  "x": randint(1, len(board)),
-  "y": randint(1, len(board)),
+  "x": theSecondEX,
+  "y": theSecondEY,
   "health": 8,
   "char": "B"
 }]
@@ -40,6 +41,19 @@ enemies = [{
 board[player["x"]][player["y"]] = "C"
 for enemy in enemies:
   board[enemy["x"]][enemy["y"]] = enemy["char"]
+
+treasures = ["G", "H", "S"]
+'''
+tres1x, tres1y = find_empty_space()
+tres2x, tres2y = find_empty_space()
+
+board[tres1x][tres1y] = treasures[whichTres1]
+board[tres2x][tres2y] = treasures[whichTres2]'''
+
+for i in range(0, 2):
+  tresX, tresY = find_empty_space()
+  whichTres = randint(0, 2)
+  board[tresX][tresY] = treasures[whichTres]
 
 def make_divider(size):
   divider = []
@@ -61,10 +75,6 @@ def printBoard():
   print("\n"*2)
   print("Coins: " + str(player["coins"]))
   print("Health: " + str(player["health"]) + "\n\n")
-
-global chestX, chestY
-chestX, chestY = find_empty_space()
-board[chestX][chestY] = "T"
 
 global has_health_potion
 has_health_potion = False
@@ -115,12 +125,23 @@ def enemyMove():
     elif board[enemy["x"]+dx][enemy["y"]+dy] == "*":
       print("The enemies head slams into the barrier")
     else:
+      if board[enemy["x"]+dx][enemy["y"]+dy] == "G" or board[enemy["x"]+dx][enemy["y"]+dy] == "S" or board[enemy["x"]+dx][enemy["y"]+dy] == "H":
+        print("Oh no! The enemy got to the chest before you! Good luck on the next one!")
+        
+        tresX, tresY = find_empty_space()
+        whichTres = randint(0, 2)
+        board[tresX][tresY] = treasures[whichTres]
+        
+        
+      
       board[enemy["x"]][enemy["y"]] = " "
       enemy["x"] += dx
       enemy["y"] += dy
       board[enemy["x"]][enemy["y"]] = enemy["char"]
 
 def check():
+  global has_health_potion
+  
   cmd = input(">>> ")
   
   dx = 0
@@ -184,6 +205,28 @@ def check():
     if board[player["x"]+dx][player["y"]+dy] == "*":
       print("Your head slams into the barrier")
     else:
+      if board[player["x"]+dx][player["y"]+dy] == "G":
+        print("You got 50 gold!")
+        player["coins"] += 50
+        
+        tresX, tresY = find_empty_space()
+        whichTres = randint(0, 2)
+        board[tresX][tresY] = treasures[whichTres]
+      elif board[player["x"]+dx][player["y"]+dy] == "S":
+        print("You got a better sword!")
+        player["damage"] += 2
+        
+        tresX, tresY = find_empty_space()
+        whichTres = randint(0, 2)
+        board[tresX][tresY] = treasures[whichTres]
+      elif board[player["x"]+dx][player["y"]+dy] == "H":
+        print("You got a health potion!")
+        has_health_potion = True
+        
+        tresX, tresY = find_empty_space()
+        whichTres = randint(0, 2)
+        board[tresX][tresY] = treasures[whichTres]
+
       board[player["x"]][player["y"]] = " "
       player["x"] += dx
       player["y"] += dy
@@ -199,38 +242,17 @@ while True:
   if player["health"] >= 100:
     player["health"] = 100
   
-  if player["x"] == chestX and player["y"] == chestY:
-    printBoard()
-    
-    treasure_pick = randint(1, 3)
-    print("You've found the treasure! Congratulations!")
-    if treasure_pick == 1:
-      print("You recieved 50 gold!")
-      player["coins"] += 50
-    elif treasure_pick == 2:
-      print("You got a better sword!")
-      player["damage"] += 2
-    elif treasure_pick == 3:
-      print("You got a health potion!")
-      has_health_potion = True
-    
-    chestX, chestY = find_empty_space()
-    board[chestX][chestY] = "T"
-  
   for enemy in enemies:
-    if enemy["x"] == chestX and enemy["y"] == chestY:
-      print("Oh no! The enemy got to the chest before you! Good luck on the next one!")
-      chestX = randint(1, len(board))
-      chestY = randint(1, len(board))
-      board[chestX][chestY] = "T"
     if enemy["health"] <= 0:
       enemyGold = randint(1, 10)
       print("You killed the enemy! You loot it and find " + str(enemyGold) + " gold.")
       player["coins"] += enemyGold
       
       board[enemy["x"]][enemy["y"]] = " "
-      enemy["x"] = randint(1, len(board))
-      enemy["y"] = randint(1, len(board))
+      newEnX, newEnY = find_empty_space()
+      
+      enemy["x"] = newEnX
+      enemy["y"] = newEnY
       board[enemy["x"]][enemy["y"]] = enemy["char"]
 
       enemy["health"] = 5
