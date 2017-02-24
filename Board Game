@@ -1,12 +1,12 @@
 from random import randint
-from Board import board
+from Board import board, empty
 
 def find_empty_space():
   while True:
     x = randint(1, len(board))
     y = randint(1, len(board))
     
-    if board[x][y] == " ":
+    if board[x][y] == empty:
       return x, y
 
 for i in range(0, 5):
@@ -17,12 +17,30 @@ theFirstX, theFirstY = find_empty_space()
 theFirstEX, theFirstEY = find_empty_space()
 theSecondEX, theSecondEY = find_empty_space()
 
+weapons = [
+  {
+    "name": "mace",
+    "damage": 5,
+    "cost": 10
+  },
+  {
+    "damage": 1,
+    "name": "cheap sword",
+    "cost": 5,
+  },
+]
+
 player = {
   "x": theFirstX,
   "y": theFirstY,
   "coins": 0,
   "health": 100,
-  "damage": 1,
+  "weapon": {
+    "damage": 1,
+    "name": "cheap sword",
+    "cost": 5,
+  }
+  # "damage": 1,
 }
 
 enemies = [{
@@ -42,7 +60,7 @@ board[player["x"]][player["y"]] = "C"
 for enemy in enemies:
   board[enemy["x"]][enemy["y"]] = enemy["char"]
 
-treasures = ["G", "H", "S"]
+treasures = ["G", "H", "W"]
 '''
 tres1x, tres1y = find_empty_space()
 tres2x, tres2y = find_empty_space()
@@ -66,12 +84,12 @@ divider = make_divider(len(board))
 def printBoard():
   for d in range(1, (len(board) + 1)):
     print()
-    print(divider)
+    # print(divider)
     for i in range(1, len(board) + 1):
       if i == len(board):
         print(" " + str(board[i][d]), end="")
       else:
-        print(" " + str(board[i][d]) + " |", end="")
+        print(" " + str(board[i][d]) + "", end="")
   print("\n"*2)
   print("Coins: " + str(player["coins"]))
   print("Health: " + str(player["health"]) + "\n\n")
@@ -82,7 +100,7 @@ has_health_potion = False
 def attack():
   for enemy in enemies:
     if enemy["x"] + 1 == player["x"] or enemy["x"] - 1 == player["x"] or enemy["y"] + 1 == player["y"] or enemy["y"] - 1 == player["y"]:
-      enemy["health"] -= player["damage"]
+      enemy["health"] -= player["weapon"]["damage"]
       print("The enemy is at " + str(enemy["health"]) + " health.")
       break
   else:
@@ -124,21 +142,21 @@ def enemyMove():
       player["health"] -= 10
     elif board[enemy["x"]+dx][enemy["y"]+dy] == "*":
       print("The enemies head slams into the barrier")
-    elif board[enemy["x"]+dx][enemy["y"]+dy] == "G" or board[enemy["x"]+dx][enemy["y"]+dy] == "S" or board[enemy["x"]+dx][enemy["y"]+dy] == "H":
+    elif board[enemy["x"]+dx][enemy["y"]+dy] == "G" or board[enemy["x"]+dx][enemy["y"]+dy] == "W" or board[enemy["x"]+dx][enemy["y"]+dy] == "H":
       print("Oh no! The enemy got to the chest before you! Good luck on the next one!")
       
       tresX, tresY = find_empty_space()
       whichTres = randint(0, 2)
       board[tresX][tresY] = treasures[whichTres]
       
-      board[enemy["x"]][enemy["y"]] = " "
+      board[enemy["x"]][enemy["y"]] = empty
       enemy["x"] += dx
       enemy["y"] += dy
       board[enemy["x"]][enemy["y"]] = enemy["char"]
-    elif board[enemy["x"]+dx][enemy["y"]+dy] != " ":
+    elif board[enemy["x"]+dx][enemy["y"]+dy] != empty:
       pass # the tile is occupied
     else:
-      board[enemy["x"]][enemy["y"]] = " "
+      board[enemy["x"]][enemy["y"]] = empty
       enemy["x"] += dx
       enemy["y"] += dy
       board[enemy["x"]][enemy["y"]] = enemy["char"]
@@ -196,13 +214,13 @@ def check():
   if enemy:
     print("Oh no! The enemy hit you!")
     
-    board[player["x"]][player["y"]] = " "
+    board[player["x"]][player["y"]] = empty
     player["x"] += dx*2
     player["y"] += dy*2
     board[player["x"]][player["y"]] = "C"
   
     if player["x"] + dx*2 <= 0 or player["y"] + dy*2 <= 0 or player["x"] + dx*2 >= len(board) or player["y"] + dy*2 >= len(board):
-      board[player["x"]][player["y"]] = " "
+      board[player["x"]][player["y"]] = empty
       enemy["x"] = player["x"]
       enemy["y"] = player["y"]
       player["x"] += dx
@@ -220,9 +238,10 @@ def check():
       tresX, tresY = find_empty_space()
       whichTres = randint(0, 2)
       board[tresX][tresY] = treasures[whichTres]
-    elif board[player["x"]+dx][player["y"]+dy] == "S":
-      print("You got a better sword!")
-      player["damage"] += 2
+    elif board[player["x"]+dx][player["y"]+dy] == "W":
+      whichWeapon = randint(0, len(weapons)-1)
+      print("You got a "+ weapons[whichWeapon]["name"] + "!")
+      player["weapon"] = weapons[whichWeapon]
       
       tresX, tresY = find_empty_space()
       whichTres = randint(0, 2)
@@ -235,7 +254,7 @@ def check():
       whichTres = randint(0, 2)
       board[tresX][tresY] = treasures[whichTres]
 
-    board[player["x"]][player["y"]] = " "
+    board[player["x"]][player["y"]] = empty
     player["x"] += dx
     player["y"] += dy
     board[player["x"]][player["y"]] = "C" # '''
@@ -256,7 +275,7 @@ while True:
       print("You killed the enemy! You loot it and find " + str(enemyGold) + " gold.")
       player["coins"] += enemyGold
       
-      board[enemy["x"]][enemy["y"]] = " "
+      board[enemy["x"]][enemy["y"]] = empty
       newEnX, newEnY = find_empty_space()
       
       enemy["x"] = newEnX
