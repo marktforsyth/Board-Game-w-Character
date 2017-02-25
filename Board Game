@@ -9,26 +9,51 @@ def find_empty_space():
     if board[x][y] == empty:
       return x, y
 
-for i in range(0, 5):
-  x, y = find_empty_space()
-  board[x][y] = "*"
+def gen_board_data(enemy_healths):
+  for i in range(0, 5):
+    x, y = find_empty_space()
+    board[x][y] = "*"
+  
+  ladderX, ladderY = find_empty_space()
+  board[ladderX][ladderY] = "L"
+
+  theFirstEX, theFirstEY = find_empty_space()
+  theSecondEX, theSecondEY = find_empty_space()
+  
+  global enemies
+  
+  enemies = [{
+      "x": theFirstEX,
+      "y": theFirstEY,
+      "health": enemy_healths[0],
+      "char": "E",
+      "damage": enemy_healths[0]*2,
+    }, 
+    {
+      "x": theSecondEX,
+      "y": theSecondEY,
+      "health": enemy_healths[1],
+      "char": "B",
+      "damage": enemy_healths[1]*2
+    }]
+    
+  for enemy in enemies:
+    board[enemy["x"]][enemy["y"]] = enemy["char"]
+  
+  for i in range(0, 2):
+    tresX, tresY = find_empty_space()
+    whichTres = randint(0, 2)
+    board[tresX][tresY] = treasures[whichTres]
+    
+global enemy_health_var
+enemy_health_var = 5
+
+global gold_var, heal_var, dmge_var
+gold_var = 50 # double every time
+heal_var = 15 # add 5 to the health potions every time
+dmge_var = 1 # add 2 to each every time
 
 theFirstX, theFirstY = find_empty_space()
-theFirstEX, theFirstEY = find_empty_space()
-theSecondEX, theSecondEY = find_empty_space()
-
-weapons = [
-  {
-    "name": "mace",
-    "damage": 5,
-    "cost": 10
-  },
-  {
-    "damage": 1,
-    "name": "cheap sword",
-    "cost": 5,
-  },
-]
 
 player = {
   "x": theFirstX,
@@ -36,42 +61,36 @@ player = {
   "coins": 0,
   "health": 100,
   "weapon": {
-    "damage": 1,
+    "damage": dmge_var,
     "name": "cheap sword",
-    "cost": 5,
+    "cost": dmge_var+2,
   }
-  # "damage": 1,
 }
 
-enemies = [{
-  "x": theFirstEX,
-  "y": theFirstEY,
-  "health": 5,
-  "char": "E"
-}, 
-{
-  "x": theSecondEX,
-  "y": theSecondEY,
-  "health": 8,
-  "char": "B"
-}]
-
 board[player["x"]][player["y"]] = "C"
-for enemy in enemies:
-  board[enemy["x"]][enemy["y"]] = enemy["char"]
 
 treasures = ["G", "H", "W"]
-'''
-tres1x, tres1y = find_empty_space()
-tres2x, tres2y = find_empty_space()
 
-board[tres1x][tres1y] = treasures[whichTres1]
-board[tres2x][tres2y] = treasures[whichTres2]'''
+global how_far_down
+how_far_down = 0
 
-for i in range(0, 2):
-  tresX, tresY = find_empty_space()
-  whichTres = randint(0, 2)
-  board[tresX][tresY] = treasures[whichTres]
+global has_health_potion
+has_health_potion = False
+
+weapons = [
+  {
+    "name": "mace",
+    "damage": dmge_var+4,
+    "cost": dmge_var+8,
+  },
+  {
+    "damage": dmge_var,
+    "name": "cheap sword",
+    "cost": dmge_var+2,
+  },
+]
+
+gen_board_data([enemy_health_var, enemy_health_var*2])
 
 def make_divider(size):
   divider = []
@@ -82,6 +101,8 @@ def make_divider(size):
 divider = make_divider(len(board))
 
 def printBoard():
+  global how_far_down
+  
   for d in range(1, (len(board) + 1)):
     print()
     # print(divider)
@@ -92,10 +113,9 @@ def printBoard():
         print(" " + str(board[i][d]) + "", end="")
   print("\n"*2)
   print("Coins: " + str(player["coins"]))
-  print("Health: " + str(player["health"]) + "\n\n")
-
-global has_health_potion
-has_health_potion = False
+  print("Health: " + str(player["health"]))
+  print("Weapon: " + player["weapon"]["name"])
+  print("Depth: " + str(how_far_down) + "\n\n")
 
 def attack():
   for enemy in enemies:
@@ -105,16 +125,6 @@ def attack():
       break
   else:
     print("There are no enemies to attack!")
-
-def healthBoost():
-  global has_health_potion
-  
-  if has_health_potion == True:
-    player["health"] += 15
-    print("Your health has been raised by 15!")
-    has_health_potion = False
-  else:
-    print("\nYou don't have a health potion!")
 
 def enemyMove():
   for enemy in enemies:
@@ -139,7 +149,7 @@ def enemyMove():
     
     if enemy["x"] + dx == player["x"] and enemy["y"] + dy == player["y"]:
       print("Oh no! Then enemy hit you!")
-      player["health"] -= 10
+      player["health"] -= enemy["damage"]
     elif board[enemy["x"]+dx][enemy["y"]+dy] == "*":
       print("The enemies head slams into the barrier")
     elif board[enemy["x"]+dx][enemy["y"]+dy] == "G" or board[enemy["x"]+dx][enemy["y"]+dy] == "W" or board[enemy["x"]+dx][enemy["y"]+dy] == "H":
@@ -167,7 +177,8 @@ def find_enemy_at(x, y):
       return enemy
 
 def check():
-  global has_health_potion
+  global has_health_potion, enemy_health_var, how_far_down
+  global gold_var, heal_var, dmge_var
   
   cmd = input(">>> ")
   
@@ -199,7 +210,12 @@ def check():
     attack()
     should_regen_health = False
   elif cmd == "health boost":
-    healthBoost()
+    if has_health_potion == True:
+      player["health"] += heal_var
+      print("Your health has been raised by " + str(heal_var) + "!")
+      has_health_potion = False
+    else:
+      print("\nYou don't have a health potion!")
     should_regen_health = False
   else:
     print("\nWe do not recognize your command")
@@ -228,12 +244,36 @@ def check():
       board[player["x"]][player["y"]] = "C"
       
       board[enemy["x"]][enemy["y"]] = enemy["char"]
-  elif board[player["x"]+dx][player["y"]+dy] == "*":
+  if board[player["x"]+dx][player["y"]+dy] == "*":
     print("Your head slams into the barrier")
+  if board[player["x"]+dx][player["y"]+dy] == "L":
+    board[player["x"]][player["y"]] = empty
+    player["x"] += dx
+    player["y"] += dy
+    board[player["x"]][player["y"]] = "C"
+    
+    print("\nGoing downstairs...\n")
+    how_far_down += 1
+    
+    enemy_health_var += 2
+    dmge_var += 3
+    gold_var *= 2
+    heal_var += 5
+    
+    weapons[0]["damage"] = dmge_var+4
+    weapons[0]["cost"] = dmge_var+8
+    weapons[1]["damage"] = dmge_var
+    weapons[1]["cost"] = dmge_var+2
+    
+    for enemy in enemies:
+      board[enemy["x"]][enemy["y"]] = empty
+    
+    gen_board_data([enemy_health_var, enemy_health_var*2])
+    
   else:
     if board[player["x"]+dx][player["y"]+dy] == "G":
-      print("You got 50 gold!")
-      player["coins"] += 50
+      print("You got " + str(gold_var) + " gold!")
+      player["coins"] += gold_var
       
       tresX, tresY = find_empty_space()
       whichTres = randint(0, 2)
@@ -262,6 +302,8 @@ def check():
 print("Your commands are 'up', 'down', 'left', 'right', 'attack' and 'health boost'\n")
 
 while True:
+  global enemies
+  
   enemyMove()
   printBoard()
   check()
