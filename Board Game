@@ -1,5 +1,5 @@
 from random import randint
-from Board import board, empty
+from Board import board, empty, make_vwall
 
 def find_empty_space():
   while True:
@@ -266,6 +266,16 @@ def check():
     weapons[0]["cost"] = dmge_var+8
     weapons[1]["damage"] = dmge_var
     weapons[1]["cost"] = dmge_var+2
+    
+    for y in range(1, 21):
+      board[y] = {}
+      for x in range(1, 21):
+        board[y][x] = empty
+    
+    board[player["x"]][player["y"]] = "C"
+    
+    make_vwall()
+    make_vwall()
     
     for enemy in enemies:
       board[enemy["x"]][enemy["y"]] = empty
