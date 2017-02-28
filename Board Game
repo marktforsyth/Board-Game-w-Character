@@ -64,6 +64,7 @@ player = {
     "damage": dmge_var,
     "name": "cheap sword",
     "cost": dmge_var+2,
+    "type": "slash"
   }
 }
 
@@ -82,11 +83,13 @@ weapons = [
     "name": "mace",
     "damage": dmge_var+4,
     "cost": dmge_var+8,
+    "type": "spin"
   },
   {
     "damage": dmge_var,
     "name": "cheap sword",
     "cost": dmge_var+2,
+    "type": "slash"
   },
 ]
 
@@ -122,9 +125,8 @@ def attack():
     if enemy["x"] + 1 == player["x"] or enemy["x"] - 1 == player["x"] or enemy["y"] + 1 == player["y"] or enemy["y"] - 1 == player["y"]:
       enemy["health"] -= player["weapon"]["damage"]
       print("The enemy is at " + str(enemy["health"]) + " health.")
-      break
-  else:
-    print("There are no enemies to attack!")
+      if player["weapon"]["type"] == "slash":
+        break
 
 def enemyMove():
   for enemy in enemies:
