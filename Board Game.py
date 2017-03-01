@@ -156,10 +156,10 @@ def printBoard():
       else:
         print(" " + str(board[i][d]) + "", end="")
   print("\n"*2)
-  print("Coins: " + str(player["coins"]))
-  print("Health: " + str(player["health"]))
-  print("Weapon: " + player["weapon"]["name"])
-  print("Depth: " + str(how_far_down) + "\n\n")
+  print("Coins: " + str(player["coins"]), end=", ")
+  print("Health: " + str(player["health"]), end=", ")
+  print("Weapon: " + player["weapon"]["name"], end=", ")
+  print("Depth: " + str(how_far_down))
 
 def attack():
   for enemy in enemies:
@@ -249,10 +249,10 @@ def check():
       print("\nYou cannot go left past here!")
     else:
       dx = -1
-  elif cmd == "attack":
+  elif cmd == "a":
     attack()
     should_regen_health = False
-  elif cmd == "health boost":
+  elif cmd == "hp":
     if has_health_potion == True:
       player["health"] += heal_var
       print("Your health has been raised by " + str(heal_var) + "!")
@@ -307,10 +307,10 @@ def check():
       for x in range(1, 21):
         board[y][x] = empty
     
-    board[player["x"]][player["y"]] = "C"
+    make_vwall()
+    make_vwall()
     
-    make_vwall()
-    make_vwall()
+    board[player["x"]][player["y"]] = "C"
     
     for enemy in enemies:
       board[enemy["x"]][enemy["y"]] = empty
@@ -344,7 +344,7 @@ def check():
     player["y"] += dy
     board[player["x"]][player["y"]] = "C" # '''
 
-print("Your commands are 'u', 'd', 'l', 'r', 'attack' and 'health boost'\n")
+print("Your commands are 'u', 'd', 'l', 'r', 'a' and 'hp'\n")
 
 def remove_enemy(enemy):
   '''
