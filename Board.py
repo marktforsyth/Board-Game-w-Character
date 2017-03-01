@@ -50,3 +50,11 @@ all_enemies = [{
     "min-lvl": 8
   },
 ]
+
+def find_empty_space():
+  while True:
+    x = randint(1, len(board))
+    y = randint(1, len(board))
+    
+    if board[x][y] == empty:
+      return x, y
