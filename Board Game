@@ -1,5 +1,5 @@
-from random import randint
-from Board import board, empty, make_vwall
+from random import randint, choice
+from Board import board, empty, make_vwall, all_enemies
 
 def find_empty_space():
   while True:
@@ -9,35 +9,25 @@ def find_empty_space():
     if board[x][y] == empty:
       return x, y
 
-def gen_board_data(enemy_healths):
+def gen_board_data():
   for i in range(0, 5):
     x, y = find_empty_space()
     board[x][y] = "*"
   
   ladderX, ladderY = find_empty_space()
   board[ladderX][ladderY] = "L"
-
-  theFirstEX, theFirstEY = find_empty_space()
-  theSecondEX, theSecondEY = find_empty_space()
   
   global enemies
+  enemies = []
   
-  enemies = [{
-      "x": theFirstEX,
-      "y": theFirstEY,
-      "health": enemy_healths[0],
-      "char": "E",
-      "damage": enemy_healths[0]*2,
-    }, 
-    {
-      "x": theSecondEX,
-      "y": theSecondEY,
-      "health": enemy_healths[1],
-      "char": "B",
-      "damage": enemy_healths[1]*2
-    }]
+  for i in range(1, 4):
+    enemies.append(get_random_enemy(how_far_down, all_enemies))
     
   for enemy in enemies:
+    x, y = find_empty_space()
+    enemy["x"] = x
+    enemy["y"] = y
+    
     board[enemy["x"]][enemy["y"]] = enemy["char"]
   
   for i in range(0, 2):
@@ -76,64 +66,75 @@ how_far_down = 0
 global has_health_potion
 has_health_potion = False
 
+def get_random_enemy(level, enemies):
+  '''
+  Returns valid enemy for given level
+  '''
+  available_enemies = []
+  
+  for enemy in enemies:
+    if enemy["min-lvl"] >= level:
+      available_enemies.append(enemy)
+      
+  return choice(available_enemies).copy()
+
 weapons = [
   {
     "name": "mace",
     "damage": 6,
-    "type": "spin"
+    "type": "spin",
+    "min-lvl": 2
   },
   {
     "damage": 1,
     "name": "cheap sword",
-    "type": "slash"
+    "type": "slash",
+    "min-lvl": 0
   },
   {
     "name": "better sword",
     "damage": 5,
-    "type": "slash"
+    "type": "slash",
+    "min-lvl": 2
   },
   {
     "name": "better mace",
     "damage": 9,
-    "type": "spin"
+    "type": "spin",
+    "min-lvl": 5
   },
   {
     "name": "awesome sword",
-    "damage": 10
+    "damage": 10,
+    "type": "slash",
+    "min-lvl": 5
   },
   {
     "name": "legendary sword",
     "damage": 20,
-    "type": "slash"
+    "type": "slash",
+    "min-lvl": 10
   },
   {
     "name": "awesome mace",
     "damage": 15,
-    "type": "spin"
+    "type": "spin",
+    "min-lvl": 10
   }
 ]
 
-gen_board_data([enemy_health_var, enemy_health_var*2])
+gen_board_data()
 
 def get_random_weapon(level):
   whichWeapon = randint(0, len(weapons)-1)
-  available_weapons = ["cheap sword"]
+  available_weapons = []
   
-  if level == 2:
-    available_weapons.append("mace")
-    available_weapons.append("better sword")
-  if level == 5:
-    available_weapons.append("awesome sword")
-    available_weapons.append("better mace")
-  if level == 5:
-    available_weapons.append("legendary sword")
-    available_weapons.append("awesome mace")
-  
-  if weapons[whichWeapon]["name"] in available_weapons:
-    print("You got a " + weapons[whichWeapon]["name"] + "!")
-    player["weapon"] = weapons[whichWeapon]
-  else:
-    get_random_weapon(level)
+  for weapon in weapons:
+    if weapon["min-lvl"] >= level:
+      print("You got a " + weapons[whichWeapon]["name"] + "!")
+      player["weapon"] = weapons[whichWeapon]
+    else:
+      get_random_weapon(level)
 
 def make_divider(size):
   divider = []
@@ -228,22 +229,22 @@ def check():
   dy = 0
   should_regen_health = True
     
-  if cmd == "up":
+  if cmd == "u":
     if player["y"] <= 1:
       print("\nYou cannot go up past here!")
     else:
       dy = -1
-  elif cmd == "down":
+  elif cmd == "d":
     if player["y"] >= len(board):
       print("\nYou cannot go down past here!")
     else:
       dy = 1
-  elif cmd == "right":
+  elif cmd == "r":
     if player["x"] >= len(board):
       print("\nYou cannot go right past here!")
     else:
       dx = 1
-  elif cmd == "left":
+  elif cmd == "l":
     if player["x"] <= 1:
       print("\nYou cannot go left past here!")
     else:
@@ -314,7 +315,7 @@ def check():
     for enemy in enemies:
       board[enemy["x"]][enemy["y"]] = empty
     
-    gen_board_data([enemy_health_var, enemy_health_var*2])
+    gen_board_data()
     
   else:
     if board[player["x"]+dx][player["y"]+dy] == "G":
@@ -343,11 +344,30 @@ def check():
     player["y"] += dy
     board[player["x"]][player["y"]] = "C" # '''
 
-print("Your commands are 'up', 'down', 'left', 'right', 'attack' and 'health boost'\n")
+print("Your commands are 'u', 'd', 'l', 'r', 'attack' and 'health boost'\n")
+
+def remove_enemy(enemy):
+  '''
+  Deletes an enemy from the enemy list and creates a new one in it's place
+  '''
+  
+  enemyGold = randint(1, 10)
+  print("You killed the enemy! You loot it and find " + str(enemyGold) + " gold.")
+  player["coins"] += enemyGold
+  
+  new_enemy = get_random_enemy(how_far_down, enemies)
+  
+  board[enemy["x"]][enemy["y"]] = empty
+  newEnX, newEnY = find_empty_space()
+  
+  enemies.remove(enemy)
+  enemies.append(new_enemy)
+  
+  new_enemy["x"] = newEnX
+  new_enemy["y"] = newEnY
+  board[new_enemy["x"]][new_enemy["y"]] = new_enemy["char"]
 
 while True:
-  global enemies
-  
   enemyMove()
   printBoard()
   check()
@@ -355,20 +375,14 @@ while True:
   if player["health"] >= 100:
     player["health"] = 100
   
+  dead_enemies = []
+  
   for enemy in enemies:
     if enemy["health"] <= 0:
-      enemyGold = randint(1, 10)
-      print("You killed the enemy! You loot it and find " + str(enemyGold) + " gold.")
-      player["coins"] += enemyGold
-      
-      board[enemy["x"]][enemy["y"]] = empty
-      newEnX, newEnY = find_empty_space()
-      
-      enemy["x"] = newEnX
-      enemy["y"] = newEnY
-      board[enemy["x"]][enemy["y"]] = enemy["char"]
-
-      enemy["health"] = 5
+      dead_enemies.append(enemy)
+  
+  for enemy in dead_enemies:
+    remove_enemy(enemy)
     
   if player["health"] <= 0:
     print("You died. :(")
