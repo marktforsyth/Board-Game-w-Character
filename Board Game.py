@@ -374,10 +374,6 @@ def remove_enemy(enemy):
   board[new_enemy["x"]][new_enemy["y"]] = new_enemy["char"]
 
 while True:
-  enemyMove()
-  printBoard()
-  check()
-  
   if player["health"] >= 100:
     player["health"] = 100
   
@@ -398,3 +394,7 @@ while True:
   if player["health"] <= 0:
     print("You died. :(")
     break
+  
+  enemyMove()
+  printBoard()
+  check()
