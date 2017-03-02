@@ -53,12 +53,14 @@ player = {
     "damage": 1,
     "name": "cheap sword",
     "type": "slash"
-  }
+  },
+  "exp": 0,
+  "level": 0
 }
 
 board[player["x"]][player["y"]] = "C"
 
-treasures = ["G", "H", "W"]
+treasures = ["g", "h", "w"]
 
 global how_far_down
 how_far_down = 0
@@ -131,10 +133,13 @@ def get_random_weapon(level):
   
   for weapon in weapons:
     if weapon["min-lvl"] >= level:
-      print("You got a " + weapons[whichWeapon]["name"] + "!")
-      player["weapon"] = weapons[whichWeapon]
+      correct_weapon = True
     else:
       get_random_weapon(level)
+  
+  if correct_weapon:
+    print("You got a " + weapons[whichWeapon]["name"] + "!")
+    player["weapon"] = weapons[whichWeapon]
 
 def make_divider(size):
   divider = []
@@ -156,10 +161,11 @@ def printBoard():
       else:
         print(" " + str(board[i][d]) + "", end="")
   print("\n"*2)
-  print("Coins: " + str(player["coins"]), end=", ")
+  print("Gold: " + str(player["coins"]), end=", ")
   print("Health: " + str(player["health"]), end=", ")
   print("Weapon: " + player["weapon"]["name"], end=", ")
-  print("Depth: " + str(how_far_down))
+  print("Depth: " + str(how_far_down), end=", ")
+  print("XP: " + str(player["exp"]))
 
 def attack():
   for enemy in enemies:
@@ -195,7 +201,7 @@ def enemyMove():
       player["health"] -= enemy["damage"]
     elif board[enemy["x"]+dx][enemy["y"]+dy] == "*":
       print("The enemies head slams into the barrier")
-    elif board[enemy["x"]+dx][enemy["y"]+dy] == "G" or board[enemy["x"]+dx][enemy["y"]+dy] == "W" or board[enemy["x"]+dx][enemy["y"]+dy] == "H":
+    elif board[enemy["x"]+dx][enemy["y"]+dy] == "g" or board[enemy["x"]+dx][enemy["y"]+dy] == "w" or board[enemy["x"]+dx][enemy["y"]+dy] == "h":
       print("Oh no! The enemy got to the chest before you! Good luck on the next one!")
       
       tresX, tresY = find_empty_space()
@@ -318,20 +324,20 @@ def check():
     gen_board_data()
     
   else:
-    if board[player["x"]+dx][player["y"]+dy] == "G":
+    if board[player["x"]+dx][player["y"]+dy] == "g":
       print("You got " + str(gold_var) + " gold!")
       player["coins"] += gold_var
       
       tresX, tresY = find_empty_space()
       whichTres = randint(0, 2)
       board[tresX][tresY] = treasures[whichTres]
-    elif board[player["x"]+dx][player["y"]+dy] == "W":
+    elif board[player["x"]+dx][player["y"]+dy] == "w":
       get_random_weapon(how_far_down)
       
       tresX, tresY = find_empty_space()
       whichTres = randint(0, 2)
       board[tresX][tresY] = treasures[whichTres]
-    elif board[player["x"]+dx][player["y"]+dy] == "H":
+    elif board[player["x"]+dx][player["y"]+dy] == "h":
       print("You got a health potion!")
       has_health_potion = True
       
@@ -380,6 +386,11 @@ while True:
   for enemy in enemies:
     if enemy["health"] <= 0:
       dead_enemies.append(enemy)
+      
+      player["exp"] += enemy["exp"]
+      if player["exp"] >= 50:
+        player["level"] += 1
+        player["exp"] = 0
   
   for enemy in dead_enemies:
     remove_enemy(enemy)
