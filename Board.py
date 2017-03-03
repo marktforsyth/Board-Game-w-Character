@@ -22,35 +22,35 @@ make_vwall()
 all_enemies = [{
     "health": 5,
     "char": "I",
-    "damage": 10,
+    "damage": 5,
     "min-lvl": 0,
     "exp": 5
   }, 
   {
     "health": 8,
     "char": "G",
-    "damage": 16,
+    "damage": 8,
     "min-lvl": 0,
     "exp": 10
   },
   {
     "health": 13,
     "char": "D",
-    "damage": 26,
+    "damage": 13,
     "min-lvl": 2,
     "exp": 15
   },
   {
     "health": 15,
     "char": "P",
-    "damage": 30,
+    "damage": 15,
     "min-lvl": 4,
     "exp": 17
   },
   {
     "health": 18,
     "char": "N",
-    "damage": 36,
+    "damage": 18,
     "min-lvl": 8,
     "exp": 20
   },
