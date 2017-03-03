@@ -54,8 +54,10 @@ player = {
     "name": "cheap sword",
     "type": "slash"
   },
-  "exp": 0,
-  "level": 0
+  "exp": 45,
+  "level": 0,
+  "defense": 0,
+  "attack": 0
 }
 
 board[player["x"]][player["y"]] = "C"
@@ -75,7 +77,7 @@ def get_random_enemy(level, enemies):
   available_enemies = []
   
   for enemy in enemies:
-    if enemy["min-lvl"] >= level:
+    if enemy["min-lvl"] <= level:
       available_enemies.append(enemy)
       
   return choice(available_enemies).copy()
@@ -128,18 +130,17 @@ weapons = [
 gen_board_data()
 
 def get_random_weapon(level):
+  '''
+  Returns a weapon for the current level
+  '''
   whichWeapon = randint(0, len(weapons)-1)
   available_weapons = []
   
   for weapon in weapons:
-    if weapon["min-lvl"] >= level:
-      correct_weapon = True
-    else:
-      get_random_weapon(level)
-  
-  if correct_weapon:
-    print("You got a " + weapons[whichWeapon]["name"] + "!")
-    player["weapon"] = weapons[whichWeapon]
+    if weapon["min-lvl"] <= level:
+      available_weapons.append(weapon)
+      
+  return choice(available_weapons).copy()
 
 def make_divider(size):
   divider = []
@@ -165,12 +166,14 @@ def printBoard():
   print("Health: " + str(player["health"]), end=", ")
   print("Weapon: " + player["weapon"]["name"], end=", ")
   print("Depth: " + str(how_far_down), end=", ")
-  print("XP: " + str(player["exp"]))
+  print("XP: " + str(player["exp"]), end=", ")
+  print("Level: " + str(player["level"]))
 
 def attack():
   for enemy in enemies:
-    if enemy["x"] + 1 == player["x"] or enemy["x"] - 1 == player["x"] or enemy["y"] + 1 == player["y"] or enemy["y"] - 1 == player["y"]:
+    if is_next_to(enemy, player):
       enemy["health"] -= player["weapon"]["damage"]
+      enemy["health"] -= player["damage"]
       print("The enemy is at " + str(enemy["health"]) + " health.")
       if player["weapon"]["type"] == "slash":
         break
@@ -197,10 +200,9 @@ def enemyMove():
         dy = -1
     
     if enemy["x"] + dx == player["x"] and enemy["y"] + dy == player["y"]:
-      print("Oh no! Then enemy hit you!")
-      player["health"] -= enemy["damage"]
+      enemy_hit_you(enemy) 
     elif board[enemy["x"]+dx][enemy["y"]+dy] == "*":
-      print("The enemies head slams into the barrier")
+      print("The enemy's head slams into the barrier")
     elif board[enemy["x"]+dx][enemy["y"]+dy] == "g" or board[enemy["x"]+dx][enemy["y"]+dy] == "w" or board[enemy["x"]+dx][enemy["y"]+dy] == "h":
       print("Oh no! The enemy got to the chest before you! Good luck on the next one!")
       
@@ -220,6 +222,19 @@ def enemyMove():
       enemy["y"] += dy
       board[enemy["x"]][enemy["y"]] = enemy["char"]
       
+      if is_next_to(enemy, player):
+        enemy_hit_you(enemy)
+
+def is_next_to(thing1, thing2):
+  dx = abs(thing1['x'] - thing2['x'])
+  dy = abs(thing1['y'] - thing2['y'])
+  return (dx == 0 and dy == 1) or (dx == 1 and dy == 0)
+
+def enemy_hit_you(enemy):
+  print("Oh no! Then enemy hit you!")
+  damage = max(0, enemy["damage"] - player["defense"])
+  player["health"] -= damage
+
 def find_enemy_at(x, y):
   for enemy in enemies:
     if x == enemy["x"] and y == enemy["y"]:
@@ -271,7 +286,10 @@ def check():
     should_regen_health = False
   
   if should_regen_health:
-    rand_healing = randint(1, 5)
+    if player["level"] == 0:
+      rand_healing = randint(0, 3)
+    else:
+      rand_healing = randint(0, player["level"]*3)
     player["health"] += rand_healing
   
  
@@ -295,6 +313,7 @@ def check():
       board[enemy["x"]][enemy["y"]] = enemy["char"]
   if board[player["x"]+dx][player["y"]+dy] == "*":
     print("Your head slams into the barrier")
+    return
   if board[player["x"]+dx][player["y"]+dy] == "L":
     board[player["x"]][player["y"]] = empty
     player["x"] += dx
@@ -332,7 +351,10 @@ def check():
       whichTres = randint(0, 2)
       board[tresX][tresY] = treasures[whichTres]
     elif board[player["x"]+dx][player["y"]+dy] == "w":
-      get_random_weapon(how_far_down)
+      weapon = get_random_weapon(how_far_down)
+      
+      print("You got a " + weapon["name"] + "!")
+      player["weapon"] = weapon
       
       tresX, tresY = find_empty_space()
       whichTres = randint(0, 2)
@@ -387,6 +409,8 @@ while True:
       if player["exp"] >= 50:
         player["level"] += 1
         player["exp"] = 0
+        player["defense"] += 3
+        player["attack"] += 3
   
   for enemy in dead_enemies:
     remove_enemy(enemy)
