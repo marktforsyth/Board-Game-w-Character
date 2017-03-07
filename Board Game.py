@@ -59,6 +59,7 @@ player = {
     "defense": 1,
     "min-lvl": 0
   },
+  "items": [],
   "exp": 45,
   "level": 0,
   "attack": 0
@@ -66,13 +67,10 @@ player = {
 
 board[player["x"]][player["y"]] = "C"
 
-treasures = ["g", "h", "w", "s"]
+treasures = ["h", "h", "h", "h"]
 
 global how_far_down
 how_far_down = 0
-
-global has_health_potion
-has_health_potion = False
 
 def get_random_enemy(level, enemies):
   '''
@@ -211,6 +209,14 @@ def printBoard():
   print("Gold: " + str(player["coins"]), end=", ")
   print("Health: " + str(player["health"]), end=", ")
   print("Weapon: " + player["weapon"]["name"], end=", ")
+  print("Items:", end=" ")
+  
+  if not player["items"]:
+    print("none", end=", ")
+  else:
+    for item in player["items"]:
+      print(item, end=", ")
+      
   print("Depth: " + str(how_far_down), end=", ")
   print("XP: " + str(player["exp"]), end=", ")
   print("Level: " + str(player["level"]))
@@ -287,7 +293,7 @@ def find_enemy_at(x, y):
       return enemy
 
 def check():
-  global has_health_potion, enemy_health_var, how_far_down
+  global enemy_health_var, how_far_down
   global gold_var, heal_var 
   
   cmd = input(">>> ")
@@ -320,10 +326,10 @@ def check():
     attack()
     should_regen_health = False
   elif cmd == "hp":
-    if has_health_potion == True:
+    if "health potion" in player["items"]:
       player["health"] += heal_var
       print("Your health has been raised by " + str(heal_var) + "!")
-      has_health_potion = False
+      player["items"].remove("health potion")
     else:
       print("\nYou don't have a health potion!")
     should_regen_health = False
@@ -408,7 +414,7 @@ def check():
       board[tresX][tresY] = treasures[whichTres]
     elif board[player["x"]+dx][player["y"]+dy] == "h":
       print("You got a health potion!")
-      has_health_potion = True
+      player["items"].append("health potion")
       
       tresX, tresY = find_empty_space()
       whichTres = randint(0, 3)
