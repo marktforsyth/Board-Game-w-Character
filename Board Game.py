@@ -1,5 +1,5 @@
 from random import randint, choice
-from Board import board, empty, make_vwall, all_enemies
+from Board import board, empty, barrier, all_enemies, make_passageway
 
 def find_empty_space():
   while True:
@@ -10,9 +10,6 @@ def find_empty_space():
       return x, y
 
 def gen_board_data():
-  for i in range(0, 5):
-    x, y = find_empty_space()
-    board[x][y] = "*"
   
   ladderX, ladderY = find_empty_space()
   board[ladderX][ladderY] = "L"
@@ -51,7 +48,7 @@ player = {
   "health": 100,
   "weapon": {
     "damage": 1,
-    "name": "cheap sword",
+    "name": "toy sword",
     "type": "slash"
   },
   "sheild": {
@@ -60,14 +57,14 @@ player = {
     "min-lvl": 0
   },
   "items": [],
-  "exp": 45,
+  "exp": 0,
   "level": 0,
   "attack": 0
 }
 
 board[player["x"]][player["y"]] = "C"
 
-treasures = ["h", "h", "h", "h"]
+treasures = ["s", "w", "g", "h"]
 
 global how_far_down
 how_far_down = 0
@@ -92,7 +89,7 @@ weapons = [
     "min-lvl": 2
   },
   {
-    "damage": 1,
+    "damage": 2,
     "name": "cheap sword",
     "type": "slash",
     "min-lvl": 0
@@ -197,14 +194,20 @@ divider = make_divider(len(board))
 def printBoard():
   global how_far_down
   
-  for d in range(1, (len(board) + 1)):
+  visible_margin = 10
+  for y in range(player['y'] - visible_margin, player['y'] + visible_margin + 1):
     print()
-    # print(divider)
-    for i in range(1, len(board) + 1):
-      if i == len(board):
-        print(" " + str(board[i][d]), end="")
+    for x in range(player['x'] - visible_margin, player['x'] + visible_margin + 1):
+      if x < 1 or y < 1 or x > len(board) or y > len(board):
+        print(" " + barrier, end='')
       else:
-        print(" " + str(board[i][d]) + "", end="")
+        print(" " + str(board[x][y]), end="")
+  '''
+  for y in range(1, (len(board) + 1)):
+    print()
+    for x in range(1, len(board) + 1):
+      print(" " + str(board[x][y]), end="")'''
+      
   print("\n"*2)
   print("Gold: " + str(player["coins"]), end=", ")
   print("Health: " + str(player["health"]), end=", ")
@@ -227,7 +230,7 @@ def attack():
       enemy["health"] -= player["weapon"]["damage"]
       enemy["health"] -= player["attack"]
       print("The enemy is at " + str(enemy["health"]) + " health.")
-      if player["weapon"]["type"] == "slash":
+      if player["weapon"]["type"] != "spin":
         break
 
 def enemyMove():
@@ -253,7 +256,7 @@ def enemyMove():
     
     if enemy["x"] + dx == player["x"] and enemy["y"] + dy == player["y"]:
       enemy_hit_you(enemy) 
-    elif board[enemy["x"]+dx][enemy["y"]+dy] == "*":
+    elif board[enemy["x"]+dx][enemy["y"]+dy] == barrier:
       print("The enemy's head slams into the barrier")
     elif board[enemy["x"]+dx][enemy["y"]+dy] == "g" or board[enemy["x"]+dx][enemy["y"]+dy] == "w" or board[enemy["x"]+dx][enemy["y"]+dy] == "h"or board[enemy["x"]+dx][enemy["y"]+dy] == "s":
       print("Oh no! The enemy got to the chest before you! Good luck on the next one!")
@@ -363,7 +366,7 @@ def check():
       board[player["x"]][player["y"]] = "C"
       
       board[enemy["x"]][enemy["y"]] = enemy["char"]
-  if board[player["x"]+dx][player["y"]+dy] == "*":
+  if board[player["x"]+dx][player["y"]+dy] == barrier:
     print("Your head slams into the barrier")
     player["health"] -= 5
     return
@@ -380,13 +383,7 @@ def check():
     gold_var *= 2
     heal_var += 5
     
-    for y in range(1, 21):
-      board[y] = {}
-      for x in range(1, 21):
-        board[y][x] = empty
-    
-    make_vwall()
-    make_vwall()
+    make_passageway(board)
     
     board[player["x"]][player["y"]] = "C"
     
