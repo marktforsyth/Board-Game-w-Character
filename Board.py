@@ -1,23 +1,28 @@
-from random import randint
+from random import randint, choice
 empty = " "
+barrier = "#"
 board = {}
-for y in range(1, 21):
+board_size = 100
+for y in range(1, board_size + 1):
   board[y] = {}
-  for x in range(1, 21):
+  for x in range(1, board_size + 1):
     board[y][x] = empty
 
-def make_vwall():
-  x = randint(1, len(board))
-  numgaps = randint(1, 5)
-  gaps = [randint(1, len(board)) for i in range(numgaps)]
+def make_passageway(board):
   for y in range(1, len(board) + 1):
-    if y in gaps:
-      board[x][y] = empty
-    else:
-      board[x][y] = "*"
+    for x in range(1, len(board) + 1):
+      board[x][y] = barrier
+  x, y = randint(1, len(board)), randint(1, len(board))
+  directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+  for _ in range(board_size * (board_size // 4) * 3):
+    dr = choice(directions)
+    x += dr[0]
+    y += dr[1]
+    x = min(max(x, 1), len(board) - 1)
+    y = min(max(y, 1), len(board) - 1)
+    board[x][y] = empty
 
-make_vwall()
-make_vwall()
+make_passageway(board)
 
 all_enemies = [{
     "health": 5,
