@@ -27,9 +27,9 @@ def gen_board_data():
     
     board[enemy["x"]][enemy["y"]] = enemy["char"]
   
-  for i in range(0, 2):
+  for i in range(0, 8):
     tresX, tresY = find_empty_space()
-    whichTres = randint(0, 3)
+    whichTres = randint(0, 4)
     board[tresX][tresY] = treasures[whichTres]
 
 global gold_var, heal_var
@@ -56,12 +56,13 @@ player = {
   "items": [],
   "exp": 0,
   "level": 0,
-  "attack": 0
+  "attack": 0,
+  "hunger": 0
 }
 
 board[player["x"]][player["y"]] = "C"
 
-treasures = ["s", "w", "g", "h"]
+treasures = ["s", "w", "g", "h", "b"]
 
 global how_far_down
 how_far_down = 0
@@ -219,7 +220,8 @@ def printBoard():
       
   print("Depth: " + str(how_far_down), end=", ")
   print("XP: " + str(player["exp"]), end=", ")
-  print("Level: " + str(player["level"]))
+  print("Level: " + str(player["level"]), end=", ")
+  print("Hunger: " + str(player["hunger"]))
 
 def attack():
   for enemy in enemies:
@@ -258,11 +260,11 @@ def enemyMove():
       enemy_hit_you(enemy) 
     elif board[enemy["x"]+dx][enemy["y"]+dy] == barrier:
       print("The enemy's head slams into the barrier")
-    elif board[enemy["x"]+dx][enemy["y"]+dy] == "g" or board[enemy["x"]+dx][enemy["y"]+dy] == "w" or board[enemy["x"]+dx][enemy["y"]+dy] == "h"or board[enemy["x"]+dx][enemy["y"]+dy] == "s":
+    elif board[enemy["x"]+dx][enemy["y"]+dy] == "g" or board[enemy["x"]+dx][enemy["y"]+dy] == "w" or board[enemy["x"]+dx][enemy["y"]+dy] == "h" or board[enemy["x"]+dx][enemy["y"]+dy] == "s" or board[enemy["x"]+dx][enemy["y"]+dy] == "b":
       print("Oh no! The enemy got to the chest before you! Good luck on the next one!")
       
       tresX, tresY = find_empty_space()
-      whichTres = randint(0, 3)
+      whichTres = randint(0, 4)
       board[tresX][tresY] = treasures[whichTres]
       
       board[enemy["x"]][enemy["y"]] = empty
@@ -339,6 +341,17 @@ def check():
   else:
     print("\nWe do not recognize your command")
     should_regen_health = False
+    
+  if player["hunger"] >= 50:
+    should_regen_health = False
+    
+    if player["hunger"] >= 85:
+      player["health"] -= 5
+      
+      if player["hunger"] >= 100:
+        player["hunger"] = 100
+      elif player["hunger"] <= 0:
+        player["hunger"] = 0
   
   if should_regen_health:
     if player["level"] == 0:
@@ -397,7 +410,7 @@ def check():
       player["coins"] += gold_var
       
       tresX, tresY = find_empty_space()
-      whichTres = randint(0, 3)
+      whichTres = randint(0, 4)
       board[tresX][tresY] = treasures[whichTres]
     elif board[player["x"]+dx][player["y"]+dy] == "w":
       weapon = get_random_weapon(how_far_down)
@@ -406,14 +419,14 @@ def check():
       player["weapon"] = weapon
       
       tresX, tresY = find_empty_space()
-      whichTres = randint(0, 3)
+      whichTres = randint(0, 4)
       board[tresX][tresY] = treasures[whichTres]
     elif board[player["x"]+dx][player["y"]+dy] == "h":
       print("You got a health potion!")
       player["items"].append("health potion")
       
       tresX, tresY = find_empty_space()
-      whichTres = randint(0, 3)
+      whichTres = randint(0, 4)
       board[tresX][tresY] = treasures[whichTres]
     elif board[player["x"]+dx][player["y"]+dy] == "s":
       sheild = get_random_sheild(how_far_down)
@@ -422,7 +435,13 @@ def check():
       player["sheild"] = sheild
       
       tresX, tresY = find_empty_space()
-      whichTres = randint(0, 3)
+      whichTres = randint(0, 4)
+      board[tresX][tresY] = treasures[whichTres]
+    elif board[player["x"]+dx][player["y"]+dy] == "b":
+      player["hunger"] -= 30
+      
+      tresX, tresY = find_empty_space()
+      whichTres = randint(0, 4)
       board[tresX][tresY] = treasures[whichTres]
 
     board[player["x"]][player["y"]] = empty
@@ -491,6 +510,8 @@ while True:
   if player["health"] <= 0:
     print("You died. :(")
     break
+  
+  player["hunger"] += 0.5
   
   enemyMove()
   printBoard()
