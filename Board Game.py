@@ -17,7 +17,7 @@ def gen_board_data():
   global enemies
   enemies = []
   
-  for i in range(1, 4):
+  for i in range(1, 13):
     enemies.append(get_random_enemy(how_far_down, all_enemies))
     
   for enemy in enemies:
@@ -31,9 +31,6 @@ def gen_board_data():
     tresX, tresY = find_empty_space()
     whichTres = randint(0, 3)
     board[tresX][tresY] = treasures[whichTres]
-    
-global enemy_health_var
-enemy_health_var = 5
 
 global gold_var, heal_var
 gold_var = 50 # double every time
@@ -296,7 +293,7 @@ def find_enemy_at(x, y):
       return enemy
 
 def check():
-  global enemy_health_var, how_far_down
+  global how_far_down
   global gold_var, heal_var 
   
   cmd = input(">>> ")
@@ -379,7 +376,6 @@ def check():
     print("\nGoing downstairs...\n")
     how_far_down += 1
     
-    enemy_health_var += 2
     gold_var *= 2
     heal_var += 5
     
