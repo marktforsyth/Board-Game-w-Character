@@ -1,4 +1,4 @@
-from random import randint, choice
+from random import randint, choice, random
 from Board import board, empty, barrier, all_enemies, make_passageway
 
 def find_empty_space():
@@ -231,7 +231,10 @@ def attack():
         break
 
 def enemyMove():
+  visible_margin = 10
+  
   for enemy in enemies:
+    # If enemy in sight range
     cmd = randint(1, 4)
   
     xVal = abs(enemy["x"] - player["x"])
@@ -434,9 +437,25 @@ def remove_enemy(enemy):
   Deletes an enemy from the enemy list and creates a new one in it's place
   '''
   
-  enemyGold = randint(1, 10)
-  print("You killed the enemy! You loot it and find " + str(enemyGold) + " gold.")
-  player["coins"] += enemyGold
+  choice = random()
+  
+  if choice <= 0.3:
+    whichOne = randint(0, 3)
+    
+    if whichOne == 0:
+      weapon = get_random_weapon(how_far_down)
+      print("You killed the enemy! You loot it and find a " + weapon["name"] + "!")
+      player["weapon"] = weapon
+    elif whichOne == 1:
+      sheild = get_random_sheild(how_far_down)
+      print("You killed the enemy! You loot it and find a " + sheild["name"] + "!")
+      player["weapon"] = weapon
+    elif whichOne == 2:
+      enemyGold = randint(1, 10)
+      print("You killed the enemy! You loot it and find " + str(enemyGold) + " gold.")
+      player["coins"] += enemyGold
+    else:
+      print("Something's gone wrong")
   
   new_enemy = get_random_enemy(how_far_down, enemies)
   
