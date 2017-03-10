@@ -10,6 +10,10 @@ def find_empty_space():
       return x, y
 
 def gen_board_data():
+  if how_far_down >= 5:
+    storeX, storeY = player["x"], player["y"]+1
+    
+    board[storeX][storeY] = "S"
   
   ladderX, ladderY = find_empty_space()
   board[ladderX][ladderY] = "L"
@@ -216,7 +220,7 @@ def printBoard():
     print("none", end=", ")
   else:
     for item in player["items"]:
-      print(item, end=", ")
+      print(item["name"], end=", ")
       
   print("Depth: " + str(how_far_down), end=", ")
   print("XP: " + str(player["exp"]), end=", ")
@@ -297,6 +301,81 @@ def find_enemy_at(x, y):
     if x == enemy["x"] and y == enemy["y"]:
       return enemy
 
+def shop():
+  shop_items = [
+    {
+      "name": "doomsday mallet",
+      "damage": 13,
+      "type": "spin",
+      "cost": 2000
+    },
+    {
+      "name": "grim reaper scythe",
+      "damage": 18,
+      "type": "slash",
+      "cost": 2500
+    },
+    {
+      "name": "speed potion",
+      "duration": 5,
+      "cost": 500
+    },
+    {
+      "name": "better health potion",
+      "healing": 30,
+      "cost": 1000
+    },
+    {
+      "name": "kite sheild",
+      "defense": 15,
+      "cost": 2000
+    }
+  ]
+  
+  print("\n")
+  print("Welcome to the shop! Here you may spend you're hard earned gold on better weapons, better sheilds, and better potions!\n")
+  
+  for i, it in enumerate(shop_items):
+    if it["type"] == "spin":
+      print(str(i+1) + ") " + it["name"] + " - damage: " + str(it["damage"]) + " - can attack multiple enemies at once" + " - cost: " + it["cost"])
+    elif "duration" in it:
+      print(str(i+1) + ") " + it["name"] + " - cost: " + it["cost"] + " - doubles speed for " + str(it["duration"]) + " turns.")
+    else:
+      print(str(i+1) + ") " + it["name"] + " - damage: " + str(it["damage"]) + " - cost: " + it["cost"])
+  cmd = input(">>> ")
+  
+  if cmd.isdigit():
+    choice_num = int(cmd)
+    if choice_num <= len(shop_items):
+      item = shop_items[choice_num-1]
+    else:
+      print("That isn't even on here!")
+  else:
+    for item in shop_items:
+      if item["name"] == cmd:
+        item = item
+      else:
+        print("That isn't even on here!")
+  
+  if player["coins"] < item["cost"]:
+    print("You don't have enough money to buy that!")
+  else:
+    print("You have succesfully bought " + item["name"] + "!")
+    player["coins"] -= item["cost"]
+    if item["type"] == "slash" or item["type"] == "spin":
+      player["weapon"] = item
+    elif "sheild" in item["name"]:
+      player["sheild"] = item
+    else:
+      player["items"].append(item)
+  
+  print("\n")
+  
+def check_potion():
+  for i in player["items"]:
+    if "potion" in i["name"]:
+      return i
+
 def check():
   global how_far_down
   global gold_var, heal_var 
@@ -331,12 +410,19 @@ def check():
     attack()
     should_regen_health = False
   elif cmd == "hp":
-    if "health potion" in player["items"]:
+    whichPotion = check_potion()
+    
+    if "health" in whichPotion["name"]:
       player["health"] += heal_var
       print("Your health has been raised by " + str(heal_var) + "!")
-      player["items"].remove("health potion")
+      player["items"].remove({
+        "name": "health potion",
+        "healing": 15
+      })
+    elif "speed" in whichPotion["name"]:
+      print("We don't do speed boosts yet :(")
     else:
-      print("\nYou don't have a health potion!")
+      print("\nYou don't have any potions!")
     should_regen_health = False
   else:
     print("\nWe do not recognize your command")
@@ -366,8 +452,8 @@ def check():
     print("Oh no! The enemy hit you!")
     
     board[player["x"]][player["y"]] = empty
-    player["x"] += dx*2
-    player["y"] += dy*2
+    player["x"] += dx+1
+    player["y"] += dy+1
     board[player["x"]][player["y"]] = "C"
   
     if player["x"] + dx*2 <= 0 or player["y"] + dy*2 <= 0 or player["x"] + dx*2 >= len(board) or player["y"] + dy*2 >= len(board):
@@ -423,7 +509,10 @@ def check():
       board[tresX][tresY] = treasures[whichTres]
     elif board[player["x"]+dx][player["y"]+dy] == "h":
       print("You got a health potion!")
-      player["items"].append("health potion")
+      player["items"].append({
+        "name": "health potion",
+        "healing": 15
+      })
       
       tresX, tresY = find_empty_space()
       whichTres = randint(0, 4)
@@ -443,6 +532,9 @@ def check():
       tresX, tresY = find_empty_space()
       whichTres = randint(0, 4)
       board[tresX][tresY] = treasures[whichTres]
+    elif board[player["x"]+dx][player["y"]+dy] == "S":
+      shop()
+      return
 
     board[player["x"]][player["y"]] = empty
     player["x"] += dx
@@ -468,13 +560,16 @@ def remove_enemy(enemy):
     elif whichOne == 1:
       sheild = get_random_sheild(how_far_down)
       print("You killed the enemy! You loot it and find a " + sheild["name"] + "!")
-      player["weapon"] = weapon
+      player["sheild"] = sheild
     elif whichOne == 2:
-      enemyGold = randint(1, 10)
+      enemyGold = randint(1, how_far_down*10)
       print("You killed the enemy! You loot it and find " + str(enemyGold) + " gold.")
       player["coins"] += enemyGold
-    else:
-      print("Something's gone wrong")
+    elif whichOne == 3:
+      print("You killed the enemy! You loot it and find bread!")
+      player["hunger"] -= 30
+  else:
+    print("You killed the enemy!")
   
   new_enemy = get_random_enemy(how_far_down, enemies)
   
