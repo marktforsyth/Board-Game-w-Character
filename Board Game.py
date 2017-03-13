@@ -56,11 +56,18 @@ player = {
     "defense": 1,
     "min-lvl": 0
   },
-  "items": [],
+  "items": [
+    {
+      "name": "speed potion",
+      "speed": 2,
+      "cost": 500
+    }
+  ],
   "exp": 0,
   "level": 0,
   "attack": 0,
-  "hunger": 0
+  "hunger": 0,
+  "speed": 1
 }
 
 board[player["x"]][player["y"]] = "C"
@@ -319,7 +326,7 @@ def shop():
     },
     {
       "name": "speed potion",
-      "duration": 5,
+      "speed": 2,
       "cost": 500
     },
     {
@@ -359,8 +366,8 @@ def pick_item(items):
       if "type" in it:
         if it["type"] == "spin":
           print(str(i+1) + ") " + it["name"] + " - damage: " + str(it["damage"]) + " - can attack multiple enemies at once" + " - cost: " + it["cost"])
-      elif "duration" in it:
-        print(str(i+1) + ") " + it["name"] + " - cost: " + it["cost"] + " - doubles speed for " + str(it["duration"]) + " turns.")
+      elif "speed" in it:
+        print(str(i+1) + ") " + it["name"] + " - cost: " + str(it["cost"]) + " - increases speed to " + str(it["speed"]))
       else:
         print(str(i+1) + ") " + it["name"] + " - damage: " + str(it["damage"]) + " - cost: " + it["cost"])
     else:
@@ -396,6 +403,8 @@ def drink():
 def check():
   global how_far_down
   global gold_var
+  
+  going_too_fast = False
   
   cmd = input(">>> ")
   
@@ -435,7 +444,7 @@ def check():
         print("Your health has been raised by " + str(item["healing"]) + "!")
         player["items"].remove(item)
       elif "speed" in item["name"]:
-        print("We don't do speed boosts yet :(")
+        player["speed"] = item["speed"]
       else:
         print("\nYou don't have any potions!")
       should_regen_health = False
@@ -462,7 +471,7 @@ def check():
     player["health"] += rand_healing
   
  
-  enemy = find_enemy_at(player["x"] + dx, player["y"] + dy)
+  enemy = find_enemy_at(player["x"] + dx*player["speed"], player["y"] + dy*player["speed"])
   if enemy:
     print("Oh no! The enemy hit you!")
     
@@ -471,23 +480,24 @@ def check():
     player["y"] += dy+1
     board[player["x"]][player["y"]] = "C"
   
-    if player["x"] + dx*2 <= 0 or player["y"] + dy*2 <= 0 or player["x"] + dx*2 >= len(board) or player["y"] + dy*2 >= len(board):
+    if player["x"] + dx-1 <= 0 or player["y"] + dy-1 <= 0 or player["x"] + dx+1 >= len(board) or player["y"] + dy+1 >= len(board):
       board[player["x"]][player["y"]] = empty
       enemy["x"] = player["x"]
       enemy["y"] = player["y"]
-      player["x"] += dx
-      player["y"] += dy
+      player["x"] += dx*player["speed"]
+      player["y"] += dy*player["speed"]
       board[player["x"]][player["y"]] = "C"
       
       board[enemy["x"]][enemy["y"]] = enemy["char"]
-  if board[player["x"]+dx][player["y"]+dy] == barrier:
-    print("Your head slams into the barrier")
-    player["health"] -= 5
-    return
-  if board[player["x"]+dx][player["y"]+dy] == "L":
+  if board[player["x"]+dx*player["speed"]][player["y"]+dy*player["speed"]] == barrier or board[player["x"]+dx][player["y"]+dy] == barrier:
+      print("Your head slams into the barrier")
+      player["health"] -= 5
+      going_too_fast = True
+      return
+  if board[player["x"]+dx*player["speed"]][player["y"]+dy*player["speed"]] == "L":
     board[player["x"]][player["y"]] = empty
-    player["x"] += dx
-    player["y"] += dy
+    player["x"] += dx*player["speed"]
+    player["y"] += dy*player["speed"]
     board[player["x"]][player["y"]] = "C"
     
     print("\nGoing downstairs...\n")
@@ -505,14 +515,14 @@ def check():
     gen_board_data()
     
   else:
-    if board[player["x"]+dx][player["y"]+dy] == "g":
+    if board[player["x"]+dx*player["speed"]][player["y"]+dy*player["speed"]] == "g":
       print("You got " + str(gold_var) + " gold!")
       player["coins"] += gold_var
       
       tresX, tresY = find_empty_space()
       whichTres = randint(0, 4)
       board[tresX][tresY] = treasures[whichTres]
-    elif board[player["x"]+dx][player["y"]+dy] == "w":
+    elif board[player["x"]+dx*player["speed"]][player["y"]+dy*player["speed"]] == "w":
       weapon = get_random_weapon(how_far_down)
       
       print("You got a " + weapon["name"] + "!")
@@ -521,7 +531,7 @@ def check():
       tresX, tresY = find_empty_space()
       whichTres = randint(0, 4)
       board[tresX][tresY] = treasures[whichTres]
-    elif board[player["x"]+dx][player["y"]+dy] == "h":
+    elif board[player["x"]+dx*player["speed"]][player["y"]+dy*player["speed"]] == "h":
       print("You got a health potion!")
       player["items"].append({
         "name": "health potion",
@@ -531,7 +541,7 @@ def check():
       tresX, tresY = find_empty_space()
       whichTres = randint(0, 4)
       board[tresX][tresY] = treasures[whichTres]
-    elif board[player["x"]+dx][player["y"]+dy] == "s":
+    elif board[player["x"]+dx*player["speed"]][player["y"]+dy*player["speed"]] == "s":
       sheild = get_random_sheild(how_far_down)
       
       print("You got a " + sheild["name"] + "!")
@@ -540,20 +550,26 @@ def check():
       tresX, tresY = find_empty_space()
       whichTres = randint(0, 4)
       board[tresX][tresY] = treasures[whichTres]
-    elif board[player["x"]+dx][player["y"]+dy] == "b":
+    elif board[player["x"]+dx*player["speed"]][player["y"]+dy*player["speed"]] == "b":
       player["hunger"] -= 30
       
       tresX, tresY = find_empty_space()
       whichTres = randint(0, 4)
       board[tresX][tresY] = treasures[whichTres]
-    elif board[player["x"]+dx][player["y"]+dy] == "S":
+    elif board[player["x"]+dx*player["speed"]][player["y"]+dy*player["speed"]] == "S":
       shop()
       return
-
-    board[player["x"]][player["y"]] = empty
-    player["x"] += dx
-    player["y"] += dy
-    board[player["x"]][player["y"]] = "C" # '''
+    
+    if going_too_fast:
+      board[player["x"]][player["y"]] = empty
+      player["x"] += dx
+      player["y"] += dy
+      board[player["x"]][player["y"]] = "C"
+    else:
+      board[player["x"]][player["y"]] = empty
+      player["x"] += dx*player["speed"]
+      player["y"] += dy*player["speed"]
+      board[player["x"]][player["y"]] = "C"
 
 print("Your commands are 'u', 'd', 'l', 'r', 'a' and 'hp'\n")
 
