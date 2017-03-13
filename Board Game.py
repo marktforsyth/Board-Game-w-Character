@@ -36,9 +36,8 @@ def gen_board_data():
     whichTres = randint(0, 4)
     board[tresX][tresY] = treasures[whichTres]
 
-global gold_var, heal_var
+global gold_var
 gold_var = 50 # double every time
-heal_var = 15 # add 5 to the health potions every time=
 
 theFirstX, theFirstY = find_empty_space()
 
@@ -335,27 +334,7 @@ def shop():
   print("\n")
   print("Welcome to the shop! Here you may spend you're hard earned gold on better weapons, better sheilds, and better potions!\n")
   
-  for i, it in enumerate(shop_items):
-    if it["type"] == "spin":
-      print(str(i+1) + ") " + it["name"] + " - damage: " + str(it["damage"]) + " - can attack multiple enemies at once" + " - cost: " + it["cost"])
-    elif "duration" in it:
-      print(str(i+1) + ") " + it["name"] + " - cost: " + it["cost"] + " - doubles speed for " + str(it["duration"]) + " turns.")
-    else:
-      print(str(i+1) + ") " + it["name"] + " - damage: " + str(it["damage"]) + " - cost: " + it["cost"])
-  cmd = input(">>> ")
-  
-  if cmd.isdigit():
-    choice_num = int(cmd)
-    if choice_num <= len(shop_items):
-      item = shop_items[choice_num-1]
-    else:
-      print("That isn't even on here!")
-  else:
-    for item in shop_items:
-      if item["name"] == cmd:
-        item = item
-      else:
-        print("That isn't even on here!")
+  item = pick_item(shop_items)
   
   if player["coins"] < item["cost"]:
     print("You don't have enough money to buy that!")
@@ -370,15 +349,50 @@ def shop():
       player["items"].append(item)
   
   print("\n")
+
+def pick_item(items):
+  for i, it in enumerate(items):
+    if "cost" in it:
+      if "type" in it:
+        if it["type"] == "spin":
+          print(str(i+1) + ") " + it["name"] + " - damage: " + str(it["damage"]) + " - can attack multiple enemies at once" + " - cost: " + it["cost"])
+      elif "duration" in it:
+        print(str(i+1) + ") " + it["name"] + " - cost: " + it["cost"] + " - doubles speed for " + str(it["duration"]) + " turns.")
+      else:
+        print(str(i+1) + ") " + it["name"] + " - damage: " + str(it["damage"]) + " - cost: " + it["cost"])
+    else:
+        print(str(i+1) + ") " + it["name"])
   
-def check_potion():
+  cmd = input(">>> ")
+  
+  if cmd.isdigit():
+    choice_num = int(cmd)
+    if choice_num <= len(items):
+      item = items[choice_num-1]
+      return item
+    else:
+      print("That isn't even on here!")
+  else:
+    for item in items:
+      if item["name"] == cmd:
+        item = item
+        return item
+      else:
+        print("That isn't even on here!")
+
+def drink():
+  drinkables = []
+  
   for i in player["items"]:
     if "potion" in i["name"]:
-      return i
+      drinkables.append(i)
+  
+  item = pick_item(drinkables)
+  return item
 
 def check():
   global how_far_down
-  global gold_var, heal_var 
+  global gold_var
   
   cmd = input(">>> ")
   
@@ -409,21 +423,19 @@ def check():
   elif cmd == "a":
     attack()
     should_regen_health = False
-  elif cmd == "hp":
-    whichPotion = check_potion()
+  elif cmd == "drink":
+    item = drink()
     
-    if "health" in whichPotion["name"]:
-      player["health"] += heal_var
-      print("Your health has been raised by " + str(heal_var) + "!")
-      player["items"].remove({
-        "name": "health potion",
-        "healing": 15
-      })
-    elif "speed" in whichPotion["name"]:
-      print("We don't do speed boosts yet :(")
-    else:
-      print("\nYou don't have any potions!")
-    should_regen_health = False
+    if item:
+      if "health" in item["name"]:
+        player["health"] += item["healing"]
+        print("Your health has been raised by " + str(item["healing"]) + "!")
+        player["items"].remove(item)
+      elif "speed" in item["name"]:
+        print("We don't do speed boosts yet :(")
+      else:
+        print("\nYou don't have any potions!")
+      should_regen_health = False
   else:
     print("\nWe do not recognize your command")
     should_regen_health = False
@@ -479,7 +491,6 @@ def check():
     how_far_down += 1
     
     gold_var *= 2
-    heal_var += 5
     
     make_passageway(board)
     
