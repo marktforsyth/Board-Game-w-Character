@@ -236,54 +236,57 @@ def attack():
         break
 
 def enemyMove():
-  visible_margin = 10
+  vision = 10
   
   for enemy in enemies:
-    # If enemy in sight range
-    cmd = randint(1, 4)
-  
-    xVal = abs(enemy["x"] - player["x"])
-    yVal = abs(enemy["y"] - player["y"])
+    vx = abs(player["x"] - enemy["x"])
+    vy = abs(player["y"] - enemy["y"])
     
-    dx = 0
-    dy = 0
+    if vx <= 10 and vy <= 10 or vx <= 10 or vy <= 10:
+      cmd = randint(1, 4)
     
-    if xVal > yVal:
-      if player["x"] > enemy["x"]:
-        dx = 1
+      xVal = abs(enemy["x"] - player["x"])
+      yVal = abs(enemy["y"] - player["y"])
+      
+      dx = 0
+      dy = 0
+      
+      if xVal > yVal:
+        if player["x"] > enemy["x"]:
+          dx = 1
+        else:
+          dx = -1
       else:
-        dx = -1
-    else:
-      if player["y"] > enemy["y"]:
-        dy = 1
+        if player["y"] > enemy["y"]:
+          dy = 1
+        else:
+          dy = -1
+      
+      if enemy["x"] + dx == player["x"] and enemy["y"] + dy == player["y"]:
+        enemy_hit_you(enemy) 
+      elif board[enemy["x"]+dx][enemy["y"]+dy] == barrier:
+        print("The enemy's head slams into the barrier")
+      elif board[enemy["x"]+dx][enemy["y"]+dy] == "g" or board[enemy["x"]+dx][enemy["y"]+dy] == "w" or board[enemy["x"]+dx][enemy["y"]+dy] == "h" or board[enemy["x"]+dx][enemy["y"]+dy] == "s" or board[enemy["x"]+dx][enemy["y"]+dy] == "b":
+        print("Oh no! The enemy got to the chest before you! Good luck on the next one!")
+        
+        tresX, tresY = find_empty_space()
+        whichTres = randint(0, 4)
+        board[tresX][tresY] = treasures[whichTres]
+        
+        board[enemy["x"]][enemy["y"]] = empty
+        enemy["x"] += dx
+        enemy["y"] += dy
+        board[enemy["x"]][enemy["y"]] = enemy["char"]
+      elif board[enemy["x"]+dx][enemy["y"]+dy] != empty:
+        pass # the tile is occupied
       else:
-        dy = -1
-    
-    if enemy["x"] + dx == player["x"] and enemy["y"] + dy == player["y"]:
-      enemy_hit_you(enemy) 
-    elif board[enemy["x"]+dx][enemy["y"]+dy] == barrier:
-      print("The enemy's head slams into the barrier")
-    elif board[enemy["x"]+dx][enemy["y"]+dy] == "g" or board[enemy["x"]+dx][enemy["y"]+dy] == "w" or board[enemy["x"]+dx][enemy["y"]+dy] == "h" or board[enemy["x"]+dx][enemy["y"]+dy] == "s" or board[enemy["x"]+dx][enemy["y"]+dy] == "b":
-      print("Oh no! The enemy got to the chest before you! Good luck on the next one!")
-      
-      tresX, tresY = find_empty_space()
-      whichTres = randint(0, 4)
-      board[tresX][tresY] = treasures[whichTres]
-      
-      board[enemy["x"]][enemy["y"]] = empty
-      enemy["x"] += dx
-      enemy["y"] += dy
-      board[enemy["x"]][enemy["y"]] = enemy["char"]
-    elif board[enemy["x"]+dx][enemy["y"]+dy] != empty:
-      pass # the tile is occupied
-    else:
-      board[enemy["x"]][enemy["y"]] = empty
-      enemy["x"] += dx
-      enemy["y"] += dy
-      board[enemy["x"]][enemy["y"]] = enemy["char"]
-      
-      if is_next_to(enemy, player):
-        enemy_hit_you(enemy)
+        board[enemy["x"]][enemy["y"]] = empty
+        enemy["x"] += dx
+        enemy["y"] += dy
+        board[enemy["x"]][enemy["y"]] = enemy["char"]
+        
+        if is_next_to(enemy, player):
+          enemy_hit_you(enemy)
 
 def is_next_to(thing1, thing2):
   dx = abs(thing1['x'] - thing2['x'])
